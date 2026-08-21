@@ -1,0 +1,423 @@
+/* Day 7 - Typography, colour, spacing and CSS custom properties
+   Every value on the page now comes from a token declared in :root.
+   Still no Flexbox - that is Day 8. */
+
+
+/* ---------------------------------------------------------------
+   1. Design tokens
+   --------------------------------------------------------------- */
+
+:root {
+
+    /* Type scale. Ratio of roughly 1.25 between steps.
+       rem is relative to the root font size, so if the reader changes
+       their browser font size the whole page scales with it. px would not. */
+    --size-xs:   0.75rem;   /* 12px */
+    --size-sm:   0.875rem;  /* 14px */
+    --size-md:   1rem;      /* 16px - base */
+    --size-lg:   1.25rem;   /* 20px */
+    --size-xl:   1.5rem;    /* 24px */
+    --size-2xl:  2rem;      /* 32px */
+
+    /* Line height is unitless on purpose so children multiply it by
+       their own font size instead of inheriting a fixed pixel value. */
+    --leading-tight: 1.25;
+    --leading-body:  1.6;
+
+    --font-body: "Segoe UI", Arial, Helvetica, sans-serif;
+    --font-mono: "Courier New", Courier, monospace;
+
+    /* Spacing scale. Everything is a multiple of 4 so spacing on the
+       page lines up instead of being whatever number I typed. */
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 16px;
+    --space-4: 24px;
+    --space-5: 32px;
+    --space-6: 48px;
+
+    /* Colour. Named by role, not by the colour itself, so I can change
+       the hex without the variable name becoming a lie. */
+    --color-page:        #f4f6f8;
+    --color-surface:     #ffffff;
+    --color-surface-alt: #eef3f9;
+    --color-border:      #d8dee6;
+    --color-text:        #1c2126;
+    --color-text-muted:  #5a646e;
+    --color-brand:       #17457f;
+    --color-brand-dark:  #0f3160;
+    --color-focus:       #b4530a;
+
+    /* Other repeated values */
+    --radius:     6px;
+    --border:     1px solid var(--color-border);
+    --max-width:  800px;
+}
+
+
+/* ---------------------------------------------------------------
+   2. Reset (carried forward from Day 6)
+   --------------------------------------------------------------- */
+
+* {
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    box-sizing: border-box;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: inherit;
+}
+
+
+/* ---------------------------------------------------------------
+   3. Base elements
+   --------------------------------------------------------------- */
+
+body {
+    font-family: var(--font-body);
+    font-size: var(--size-md);
+    line-height: var(--leading-body);
+    color: var(--color-text);
+    background-color: var(--color-page);
+    padding: var(--space-4);
+}
+
+h1,
+h2,
+h3 {
+    line-height: var(--leading-tight);
+    margin-bottom: var(--space-2);
+}
+
+h1 { font-size: var(--size-2xl); }
+h2 { font-size: var(--size-xl); }
+h3 { font-size: var(--size-lg); }
+
+/* Headings that follow body text need room above them.
+   This is the one place I break the margin-bottom-only rule from Day 6,
+   so I use the adjacent sibling selector to keep it contained. */
+p + h3,
+ul + h3,
+table + h3 {
+    margin-top: var(--space-4);
+}
+
+p {
+    margin-bottom: var(--space-2);
+}
+
+/* Long lines are hard to read. Around 65 characters is the range MDN suggests. */
+.section p {
+    max-width: 65ch;
+}
+
+a {
+    color: var(--color-brand);
+}
+
+a:hover {
+    text-decoration: none;
+}
+
+code {
+    font-family: var(--font-mono);
+    font-size: var(--size-sm);
+    background-color: var(--color-surface-alt);
+    padding: 0 var(--space-1);
+    border-radius: 3px;
+}
+
+
+/* ---------------------------------------------------------------
+   4. Focus states
+   --------------------------------------------------------------- */
+
+/* :focus-visible only fires for keyboard focus, so clicking a button
+   does not leave an outline behind but tabbing to it does. */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+    outline: 3px solid var(--color-focus);
+    outline-offset: 2px;
+    border-radius: 2px;
+}
+
+/* Fallback for browsers without :focus-visible.
+   The @supports guard stops modern browsers using it. */
+@supports not selector(:focus-visible) {
+    a:focus,
+    button:focus,
+    input:focus,
+    textarea:focus {
+        outline: 3px solid var(--color-focus);
+        outline-offset: 2px;
+    }
+}
+
+.skip-link {
+    position: absolute;
+    left: -9999px;
+}
+
+.skip-link:focus {
+    position: static;
+    display: inline-block;
+    margin-bottom: var(--space-3);
+}
+
+
+/* ---------------------------------------------------------------
+   5. Utility classes
+   --------------------------------------------------------------- */
+
+.text-xs     { font-size: var(--size-xs); }
+.text-sm     { font-size: var(--size-sm); }
+.text-lg     { font-size: var(--size-lg); }
+
+.text-muted  { color: var(--color-text-muted); }
+.text-center { text-align: center; }
+
+.stack-sm > * + * { margin-top: var(--space-2); }
+.stack-md > * + * { margin-top: var(--space-3); }
+
+.surface {
+    background-color: var(--color-surface);
+    border: var(--border);
+    border-radius: var(--radius);
+    padding: var(--space-4);
+}
+
+.flow-bottom {
+    margin-bottom: var(--space-3);
+}
+
+
+/* ---------------------------------------------------------------
+   6. Layout
+   --------------------------------------------------------------- */
+
+.site-header {
+    background-color: var(--color-surface);
+    border: var(--border);
+    border-radius: var(--radius);
+    padding: var(--space-5) var(--space-4);
+    margin-bottom: var(--space-3);
+    text-align: center;
+}
+
+.site-title {
+    margin-bottom: var(--space-1);
+}
+
+.site-tagline {
+    margin-bottom: 0;
+}
+
+.profile {
+    margin-bottom: var(--space-3);
+}
+
+.profile__image {
+    border: 4px solid var(--color-border);
+    border-radius: 50%;
+    height: auto;
+}
+
+.profile__caption {
+    margin-top: var(--space-2);
+}
+
+.site-nav {
+    background-color: var(--color-surface);
+    border: var(--border);
+    border-radius: var(--radius);
+    padding: var(--space-2) var(--space-4);
+    margin-bottom: var(--space-3);
+}
+
+.nav-list {
+    list-style: none;
+}
+
+.nav-list li {
+    display: inline-block;
+    margin-right: var(--space-3);
+}
+
+.page {
+    max-width: var(--max-width);
+    margin: 0 auto;
+}
+
+.section {
+    background-color: var(--color-surface);
+    border: var(--border);
+    border-radius: var(--radius);
+    padding: var(--space-4);
+    margin-bottom: var(--space-3);
+}
+
+.site-footer {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: var(--space-3) var(--space-4);
+    color: var(--color-text-muted);
+    font-size: var(--size-sm);
+    text-align: center;
+}
+
+
+/* ---------------------------------------------------------------
+   7. Components
+   --------------------------------------------------------------- */
+
+.card {
+    background-color: var(--color-surface-alt);
+    border-left: 4px solid var(--color-brand);
+    border-radius: var(--radius);
+    padding: var(--space-3);
+    margin-bottom: var(--space-3);
+}
+
+.topic-list {
+    padding-left: var(--space-4);
+    margin-bottom: var(--space-3);
+}
+
+.progress-table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-bottom: var(--space-2);
+}
+
+.progress-table caption {
+    text-align: left;
+    font-size: var(--size-sm);
+    color: var(--color-text-muted);
+    margin-bottom: var(--space-2);
+}
+
+.progress-table th,
+.progress-table td {
+    border: var(--border);
+    padding: var(--space-2) var(--space-3);
+    text-align: left;
+}
+
+.progress-table thead th {
+    background-color: var(--color-surface-alt);
+}
+
+.contact-form fieldset {
+    border: var(--border);
+    border-radius: var(--radius);
+    padding: var(--space-3);
+}
+
+.contact-form legend {
+    padding: 0 var(--space-2);
+    font-weight: 600;
+}
+
+.field {
+    margin-bottom: var(--space-3);
+}
+
+.field label {
+    display: block;
+    margin-bottom: var(--space-1);
+    font-size: var(--size-sm);
+    font-weight: 600;
+}
+
+.field input,
+.field textarea {
+    font-family: inherit;
+    font-size: inherit;
+    width: 100%;
+    padding: var(--space-2);
+    border: 1px solid var(--color-text-muted);
+    border-radius: var(--radius);
+    background-color: var(--color-surface);
+    color: var(--color-text);
+}
+
+.button {
+    font-family: inherit;
+    font-size: inherit;
+    background-color: var(--color-brand);
+    color: var(--color-surface);
+    border: none;
+    border-radius: var(--radius);
+    padding: var(--space-2) var(--space-4);
+    cursor: pointer;
+}
+
+.button:hover {
+    background-color: var(--color-brand-dark);
+}
+
+
+/* ---------------------------------------------------------------
+   8. Token demo section
+   --------------------------------------------------------------- */
+
+.token-list {
+    list-style: none;
+    margin-bottom: var(--space-3);
+}
+
+.token-list li {
+    margin-bottom: var(--space-2);
+}
+
+.token-sample {
+    display: inline-block;
+    min-width: 3rem;
+    color: var(--color-brand);
+}
+
+.size-xs  { font-size: var(--size-xs); }
+.size-sm  { font-size: var(--size-sm); }
+.size-md  { font-size: var(--size-md); }
+.size-lg  { font-size: var(--size-lg); }
+.size-xl  { font-size: var(--size-xl); }
+.size-2xl { font-size: var(--size-2xl); }
+
+.space-sample {
+    display: inline-block;
+    height: 1rem;
+    background-color: var(--color-brand);
+    vertical-align: middle;
+    margin-right: var(--space-2);
+}
+
+.space-1 { width: var(--space-1); }
+.space-2 { width: var(--space-2); }
+.space-3 { width: var(--space-3); }
+.space-4 { width: var(--space-4); }
+.space-5 { width: var(--space-5); }
+.space-6 { width: var(--space-6); }
+
+.swatch {
+    display: inline-block;
+    width: 2rem;
+    height: 1rem;
+    border: var(--border);
+    vertical-align: middle;
+    margin-right: var(--space-2);
+}
+
+.swatch--brand      { background-color: var(--color-brand); }
+.swatch--brand-dark { background-color: var(--color-brand-dark); }
+.swatch--text       { background-color: var(--color-text); }
+.swatch--muted      { background-color: var(--color-text-muted); }
+.swatch--surface    { background-color: var(--color-surface); }
+.swatch--page       { background-color: var(--color-page); }
