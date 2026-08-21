@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Aakash Marigeri | Front-End Internship</title>
+
+    <meta name="description" content="Aakash Marigeri's front-end development internship profile, covering HTML, CSS, JavaScript and modern web development.">
+    <link rel="icon" href="assets/profiles.png" type="image/png">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+
+    <header class="site-header">
+        <figure class="profile">
+            <img class="profile__image" src="assets/profiles.png"
+                 alt="Portrait photo of Aakash Marigeri" width="200">
+            <figcaption class="profile__caption">Aakash Marigeri — Cybersecurity Undergraduate</figcaption>
+        </figure>
+
+        <h1 class="site-title">Aakash Marigeri</h1>
+        <p class="site-tagline">Cybersecurity Undergraduate | Front-End Developer Intern</p>
+    </header>
+
+    <nav class="site-nav" aria-label="Sections of this page">
+        <ul class="nav-list">
+            <li><a href="#about">About Me</a></li>
+            <li><a href="#learning">What I'm Learning</a></li>
+            <li><a href="#goal">My Goal</a></li>
+            <li><a href="#box-model">Box Model Demo</a></li>
+            <li><a href="#contact">Contact Me</a></li>
+        </ul>
+    </nav>
+
+    <main class="page" id="main-content">
+
+        <section class="section" id="about">
+            <h2>About Me</h2>
+
+            <p>
+                I am a cybersecurity undergraduate currently learning
+                front-end web development through a practical internship.
+            </p>
+
+            <p>
+                I am currently building my understanding of HTML,
+                CSS and JavaScript through practical exercises.
+            </p>
+        </section>
+
+        <section class="section" id="learning">
+            <h2>What I'm Learning</h2>
+
+            <article class="card">
+                <h3>My Front-End Learning Journey</h3>
+                <p>
+                    I am currently learning HTML, CSS, JavaScript, TypeScript,
+                    React, and Angular as part of my front-end development training.
+                </p>
+            </article>
+
+            <h3>Topics In My Course</h3>
+            <ul class="topic-list">
+                <li>HTML and semantic web structure</li>
+                <li>CSS and responsive design</li>
+                <li>JavaScript</li>
+                <li>TypeScript</li>
+                <li>React and Angular</li>
+            </ul>
+
+            <h3>My Progress So Far</h3>
+            <table class="progress-table">
+                <caption>Technologies I am learning and my current status</caption>
+
+                <thead>
+                    <tr>
+                        <th scope="col">Technology</th>
+                        <th scope="col">Status</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr>
+                        <th scope="row">HTML</th>
+                        <td>Completed</td>
+                    </tr>
+
+                    <tr>
+                        <th scope="row">CSS</th>
+                        <td>Learning</td>
+                    </tr>
+
+                    <tr>
+                        <th scope="row">JavaScript</th>
+                        <td>Upcoming</td>
+                    </tr>
+
+                    <tr>
+                        <th scope="row">React</th>
+                        <td>Upcoming</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section class="section" id="goal">
+            <h2>My Goal</h2>
+
+            <p>
+                Build practical, accessible and responsive web applications
+                while developing a strong foundation in front-end development.
+            </p>
+
+            <p>
+                By the end of this course I want to be able to build and deploy
+                a complete front-end application using React and Angular.
+            </p>
+        </section>
+
+        <section class="section" id="box-model">
+            <h2>Box Model Demo</h2>
+
+            <p>
+                Both boxes below are declared with <code>width: 300px</code>,
+                <code>padding: 20px</code> and <code>border: 5px solid</code>.
+                The only difference between them is <code>box-sizing</code>.
+            </p>
+
+            <div class="demo-box demo-box--content">
+                <p><code>box-sizing: content-box</code></p>
+                <p>Rendered width = 300 + 40 + 10 = <strong>350px</strong></p>
+            </div>
+
+            <div class="demo-box demo-box--border">
+                <p><code>box-sizing: border-box</code></p>
+                <p>Rendered width = <strong>300px</strong>, padding and border fit inside</p>
+            </div>
+
+            <p>
+                I measured both in the DevTools box model diagram to confirm this.
+            </p>
+        </section>
+
+        <section class="section" id="contact">
+            <h2>Contact Me</h2>
+
+            <form class="contact-form">
+                <fieldset>
+                    <legend>Contact Information</legend>
+
+                    <p class="field">
+                        <label for="name">Name:</label>
+                        <input type="text" id="name" name="name" autocomplete="name" required>
+                    </p>
+
+                    <p class="field">
+                        <label for="email">Email:</label>
+                        <input type="email" id="email" name="email" autocomplete="email" required>
+                    </p>
+
+                    <p class="field">
+                        <label for="age">Age:</label>
+                        <input type="number" id="age" name="age" min="18" max="100" required>
+                    </p>
+
+                    <p class="field">
+                        <label for="phone">Phone:</label>
+                        <input type="tel" id="phone" name="phone" autocomplete="tel"
+                               pattern="[0-9]{10}" required>
+                    </p>
+
+                    <p class="field">
+                        <label for="message">Message:</label>
+                        <textarea id="message" name="message" rows="5" required></textarea>
+                    </p>
+
+                    <button class="button" type="submit">Send message</button>
+                </fieldset>
+            </form>
+        </section>
+
+    </main>
+
+    <footer class="site-footer">
+        <p>Front-End Web Development Internship — Profile v1</p>
+    </footer>
+
+</body>
+</html>
