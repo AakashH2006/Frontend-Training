@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Day 17 | Expense Tracker &mdash; Interactive</title>
+
+    <meta name="description" content="Day 17: adding, deleting, searching and filtering expenses with events, form validation and event delegation.">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <div class="page">
+
+        <header class="app-header">
+            <h1>Expense Tracker</h1>
+            <p class="text-muted">
+                Day 17 &mdash; the same rendering as yesterday, now driven by
+                events. Add an expense, search, filter by category, sort, and
+                delete a row.
+            </p>
+        </header>
+
+        <section class="panel" aria-labelledby="add-heading">
+            <h2 id="add-heading">Add an expense</h2>
+
+            <!-- novalidate turns OFF the browser's own error bubbles so the
+                 messages can be shown next to each field instead. The
+                 constraints themselves are still checked in JavaScript through
+                 the Constraint Validation API, so nothing is lost. -->
+            <form class="expense-form" id="expense-form" novalidate>
+                <fieldset>
+                    <legend>New expense</legend>
+
+                    <div class="field-row">
+                        <div class="field">
+                            <label for="description">Description</label>
+                            <input type="text" id="description" name="description"
+                                   maxlength="60" required
+                                   aria-describedby="description-error">
+                            <p class="field__error" id="description-error" aria-live="polite"></p>
+                        </div>
+
+                        <div class="field">
+                            <label for="amount">Amount (Rs)</label>
+                            <input type="number" id="amount" name="amount"
+                                   min="0.01" max="100000" step="0.01" required
+                                   inputmode="decimal"
+                                   aria-describedby="amount-error">
+                            <p class="field__error" id="amount-error" aria-live="polite"></p>
+                        </div>
+                    </div>
+
+                    <div class="field-row">
+                        <div class="field">
+                            <label for="date">Date</label>
+                            <input type="date" id="date" name="date" required
+                                   aria-describedby="date-error">
+                            <p class="field__error" id="date-error" aria-live="polite"></p>
+                        </div>
+
+                        <div class="field">
+                            <label for="category">Category</label>
+                            <select id="category" name="category" required
+                                    aria-describedby="category-error">
+                                <option value="">Choose a category</option>
+                                <option value="food">Food</option>
+                                <option value="travel">Travel</option>
+                                <option value="course">Course</option>
+                                <option value="hardware">Hardware</option>
+                                <option value="other">Other</option>
+                            </select>
+                            <p class="field__error" id="category-error" aria-live="polite"></p>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button class="button button--quiet" type="reset">Clear</button>
+                        <button class="button" type="submit">Add expense</button>
+                    </div>
+                </fieldset>
+            </form>
+        </section>
+
+        <section class="panel" aria-labelledby="summary-heading">
+            <h2 id="summary-heading">Summary</h2>
+            <ul class="summary" id="summary"></ul>
+        </section>
+
+        <section class="panel" aria-labelledby="list-heading">
+            <h2 id="list-heading">Expenses</h2>
+
+            <div class="toolbar">
+                <div class="field">
+                    <label for="search">Search descriptions</label>
+                    <input type="search" id="search" name="search"
+                           autocomplete="off" placeholder="keyboard, lunch...">
+                </div>
+
+                <div class="field">
+                    <label for="sort">Sort by</label>
+                    <select id="sort" name="sort">
+                        <option value="date-desc">Newest first</option>
+                        <option value="date-asc">Oldest first</option>
+                        <option value="amount-desc">Most expensive</option>
+                        <option value="amount-asc">Least expensive</option>
+                        <option value="description-asc">Description A to Z</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- One listener on this list handles every filter button, now and
+                 for any button added later. -->
+            <ul class="filters" id="filters">
+                <li><button class="button button--quiet button--small filter"
+                            type="button" data-category="all" aria-pressed="true">All</button></li>
+                <li><button class="button button--quiet button--small filter"
+                            type="button" data-category="food" aria-pressed="false">Food</button></li>
+                <li><button class="button button--quiet button--small filter"
+                            type="button" data-category="travel" aria-pressed="false">Travel</button></li>
+                <li><button class="button button--quiet button--small filter"
+                            type="button" data-category="course" aria-pressed="false">Course</button></li>
+                <li><button class="button button--quiet button--small filter"
+                            type="button" data-category="hardware" aria-pressed="false">Hardware</button></li>
+                <li><button class="button button--quiet button--small filter"
+                            type="button" data-category="other" aria-pressed="false">Other</button></li>
+            </ul>
+
+            <p class="status" id="status" aria-live="polite"></p>
+
+            <ul class="expense-list" id="expense-list"></ul>
+        </section>
+
+        <template id="expense-template">
+            <li class="expense">
+                <span class="expense__date"></span>
+                <span class="expense__description"></span>
+                <span class="tag"></span>
+                <span class="expense__amount"></span>
+                <span class="expense__actions">
+                    <button class="button button--danger button--small" type="button"
+                            data-action="delete">Delete</button>
+                </span>
+            </li>
+        </template>
+
+        <template id="empty-template">
+            <li>
+                <p class="empty-state">No expenses match this view.</p>
+            </li>
+        </template>
+
+    </div>
+
+    <script src="app.js" defer></script>
+</body>
+</html>
