@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Day 15 | Expense Analyzer</title>
+
+    <meta name="description" content="Day 15 Week 3 mini-project: a console expense analyzer with input validation, custom error types and error handling.">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <main class="page">
+        <h1>Day 15 &mdash; Expense Analyzer</h1>
+
+        <p class="text-muted">
+            Week 3 mini-project. A console program that takes raw expense rows
+            in the shape a form or a CSV would produce, validates them, reports
+            on the good ones and explains the bad ones.
+        </p>
+
+        <h2>How to run it</h2>
+
+        <ol>
+            <li>Open this page and then the DevTools console
+                (<code>F12</code>, then the Console tab).</li>
+            <li>Or run it without a browser:</li>
+        </ol>
+
+<pre><code>node expense-analyzer.js</code></pre>
+
+        <h2>What it does</h2>
+
+        <ul>
+            <li>Validates every field &mdash; date, description, category and
+                amount &mdash; and rejects a row with the line number, the field
+                and the reason</li>
+            <li>Stores money in paise as integers, converting only when printing</li>
+            <li>Groups totals by category and by month, finds the largest
+                expense and the average, and compares each category against a
+                budget</li>
+            <li>Runs three further datasets to exercise the failure paths:
+                all rows invalid, empty input, and a rethrown unexpected error</li>
+        </ul>
+
+        <h2>Error handling</h2>
+
+        <ul>
+            <li><code>ValidationError</code> and <code>EmptyDatasetError</code>
+                as custom classes, so a catch block can tell a bad input apart
+                from a bug</li>
+            <li>Bad rows are collected rather than stopping the run at the first
+                failure</li>
+            <li>Anything that is not a known error type is rethrown, never
+                swallowed</li>
+            <li><code>finally</code> for the timing line, and
+                <code>error.cause</code> when wrapping one error in another</li>
+        </ul>
+
+        <p class="text-muted">
+            Written up in <code>Day 15/notes.md</code>. Week 3 summary in
+            <code>Day 15/README.md</code>.
+        </p>
+    </main>
+
+    <script src="expense-analyzer.js" defer></script>
+</body>
+</html>
