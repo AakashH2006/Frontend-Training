@@ -1,0 +1,258 @@
+/* Day 16 - Expense Tracker, render only.
+   The tokens are the ones from Portfolio v2 on Day 10, so the app looks like
+   the rest of the site. Only the app-specific components below are new. */
+
+
+/* ---------------------------------------------------------------
+   1. Design tokens
+   --------------------------------------------------------------- */
+
+:root {
+    --size-xs:   0.75rem;
+    --size-sm:   0.875rem;
+    --size-md:   1rem;
+    --size-lg:   clamp(1.125rem, 1.05rem + 0.4vw, 1.25rem);
+    --size-xl:   clamp(1.25rem,  1.10rem + 0.8vw, 1.5rem);
+    --size-2xl:  clamp(1.5rem,   1.15rem + 1.8vw, 2rem);
+
+    --leading-tight: 1.25;
+    --leading-body:  1.6;
+
+    --font-body: "Segoe UI", Arial, Helvetica, sans-serif;
+    --font-mono: "Courier New", Courier, monospace;
+
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 16px;
+    --space-4: 24px;
+    --space-5: 32px;
+
+    --color-page:        #f4f6f8;
+    --color-surface:     #ffffff;
+    --color-surface-alt: #eef3f9;
+    --color-border:      #d8dee6;
+    --color-text:        #1c2126;
+    --color-text-muted:  #5a646e;
+    --color-brand:       #17457f;
+    --color-brand-dark:  #0f3160;
+    --color-focus:       #b4530a;
+    --color-danger:      #a2231d;
+
+    --radius:    6px;
+    --border:    1px solid var(--color-border);
+    --max-width: 900px;
+}
+
+
+/* ---------------------------------------------------------------
+   2. Reset and base
+   --------------------------------------------------------------- */
+
+* {
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    box-sizing: border-box;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: inherit;
+}
+
+body {
+    font-family: var(--font-body);
+    font-size: var(--size-md);
+    line-height: var(--leading-body);
+    color: var(--color-text);
+    background-color: var(--color-page);
+    padding: var(--space-2);
+}
+
+h1,
+h2,
+h3 {
+    line-height: var(--leading-tight);
+    margin-bottom: var(--space-2);
+    overflow-wrap: break-word;
+}
+
+h1 { font-size: var(--size-2xl); }
+h2 { font-size: var(--size-xl); }
+h3 { font-size: var(--size-lg); }
+
+p {
+    margin-bottom: var(--space-2);
+}
+
+code {
+    font-family: var(--font-mono);
+    font-size: var(--size-sm);
+    background-color: var(--color-surface-alt);
+    padding: 0 var(--space-1);
+    border-radius: 3px;
+}
+
+a {
+    color: var(--color-brand);
+}
+
+a:focus-visible,
+button:focus-visible {
+    outline: 3px solid var(--color-focus);
+    outline-offset: 2px;
+}
+
+.text-sm    { font-size: var(--size-sm); }
+.text-xs    { font-size: var(--size-xs); }
+.text-muted { color: var(--color-text-muted); }
+
+
+/* ---------------------------------------------------------------
+   3. Page shell
+   --------------------------------------------------------------- */
+
+.page {
+    max-width: var(--max-width);
+    margin: 0 auto;
+}
+
+.app-header,
+.panel {
+    background-color: var(--color-surface);
+    border: var(--border);
+    border-radius: var(--radius);
+    padding: var(--space-3);
+    margin-bottom: var(--space-3);
+}
+
+
+/* ---------------------------------------------------------------
+   4. Summary tiles
+   --------------------------------------------------------------- */
+
+.summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(160px, 100%), 1fr));
+    gap: var(--space-3);
+    list-style: none;
+    margin-bottom: var(--space-3);
+}
+
+.summary__tile {
+    background-color: var(--color-surface-alt);
+    border: var(--border);
+    border-left: 4px solid var(--color-brand);
+    border-radius: var(--radius);
+    padding: var(--space-3);
+}
+
+.summary__label {
+    font-size: var(--size-sm);
+    color: var(--color-text-muted);
+}
+
+.summary__value {
+    font-size: var(--size-xl);
+    font-variant-numeric: tabular-nums;
+}
+
+
+/* ---------------------------------------------------------------
+   5. Expense list
+   --------------------------------------------------------------- */
+
+.expense-list {
+    list-style: none;
+    display: grid;
+    gap: var(--space-2);
+}
+
+.expense {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-1) var(--space-3);
+
+    background-color: var(--color-surface-alt);
+    border: var(--border);
+    border-radius: var(--radius);
+    padding: var(--space-2) var(--space-3);
+}
+
+.expense__description {
+    flex: 1 1 200px;
+    min-width: 0;
+    font-weight: 600;
+}
+
+.expense__date {
+    flex: 0 0 auto;
+    font-size: var(--size-sm);
+    color: var(--color-text-muted);
+    font-variant-numeric: tabular-nums;
+}
+
+.expense__amount {
+    flex: 0 0 auto;
+    /* auto margin pushes this to the far end of the row, the trick from Day 8 */
+    margin-left: auto;
+    font-variant-numeric: tabular-nums;
+}
+
+.expense--over {
+    border-left: 4px solid var(--color-danger);
+}
+
+/* A class the render code toggles, rather than setting styles from JavaScript */
+.expense--dimmed {
+    opacity: 0.45;
+}
+
+.tag {
+    display: inline-block;
+    font-size: var(--size-xs);
+    background-color: var(--color-surface);
+    border: var(--border);
+    border-radius: 999px;
+    padding: 0 var(--space-2);
+}
+
+
+/* ---------------------------------------------------------------
+   6. Empty state and status
+   --------------------------------------------------------------- */
+
+.empty-state {
+    border: 1px dashed var(--color-border);
+    border-radius: var(--radius);
+    padding: var(--space-4);
+    text-align: center;
+    color: var(--color-text-muted);
+}
+
+.status {
+    font-size: var(--size-sm);
+    color: var(--color-text-muted);
+    margin-bottom: var(--space-2);
+}
+
+
+/* ---------------------------------------------------------------
+   7. Wide screens
+   --------------------------------------------------------------- */
+
+@media (min-width: 40em) {
+
+    body {
+        padding: var(--space-4);
+    }
+
+    .app-header,
+    .panel {
+        padding: var(--space-4);
+    }
+}

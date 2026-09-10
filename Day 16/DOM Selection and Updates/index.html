@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Day 16 | Expense Tracker &mdash; Rendering</title>
+
+    <meta name="description" content="Day 16: rendering an expense list and summary into the DOM from JavaScript data, with no events yet.">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <div class="page">
+
+        <header class="app-header">
+            <h1>Expense Tracker</h1>
+            <p class="text-muted">
+                Day 16 &mdash; everything below the heading is created by
+                JavaScript from an array. There is nothing to click yet:
+                events are Day 17.
+            </p>
+            <p class="text-sm text-muted">
+                The console has a <code>demo</code> object for trying
+                re-renders by hand, for example
+                <code>demo.filter("food")</code> or <code>demo.clear()</code>.
+            </p>
+        </header>
+
+        <section class="panel" aria-labelledby="summary-heading">
+            <h2 id="summary-heading">Summary</h2>
+
+            <!-- Empty on purpose. The tiles are built in JavaScript so that
+                 the markup never has to be kept in step with the data. -->
+            <ul class="summary" id="summary"></ul>
+        </section>
+
+        <section class="panel" aria-labelledby="list-heading">
+            <h2 id="list-heading">Expenses</h2>
+
+            <!-- aria-live means a screen reader announces the count when it
+                 changes, without moving focus. -->
+            <p class="status" id="status" aria-live="polite"></p>
+
+            <ul class="expense-list" id="expense-list"></ul>
+        </section>
+
+        <!-- A template is parsed but not rendered, and its contents are inert
+             until they are cloned. It keeps the row markup in the HTML file
+             instead of inside a JavaScript string. -->
+        <template id="expense-template">
+            <li class="expense">
+                <span class="expense__date"></span>
+                <span class="expense__description"></span>
+                <span class="tag"></span>
+                <span class="expense__amount"></span>
+            </li>
+        </template>
+
+        <template id="empty-template">
+            <li>
+                <p class="empty-state">No expenses match this view.</p>
+            </li>
+        </template>
+
+    </div>
+
+    <script src="app.js" defer></script>
+</body>
+</html>
