@@ -1,0 +1,524 @@
+/* Day 9 - CSS Grid
+   Tokens from Day 7 and the Flexbox work from Day 8 are carried forward.
+   Sections 9 and 12 are the new work: the card rows became grids and the
+   Grid Tracks demo section was added. */
+
+
+/* ---------------------------------------------------------------
+   1. Design tokens (from Day 7)
+   --------------------------------------------------------------- */
+
+:root {
+    --size-xs:   0.75rem;
+    --size-sm:   0.875rem;
+    --size-md:   1rem;
+    --size-lg:   1.25rem;
+    --size-xl:   1.5rem;
+    --size-2xl:  2rem;
+
+    --leading-tight: 1.25;
+    --leading-body:  1.6;
+
+    --font-body: "Segoe UI", Arial, Helvetica, sans-serif;
+    --font-mono: "Courier New", Courier, monospace;
+
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 16px;
+    --space-4: 24px;
+    --space-5: 32px;
+    --space-6: 48px;
+
+    --color-page:        #f4f6f8;
+    --color-surface:     #ffffff;
+    --color-surface-alt: #eef3f9;
+    --color-border:      #d8dee6;
+    --color-text:        #1c2126;
+    --color-text-muted:  #5a646e;
+    --color-brand:       #17457f;
+    --color-brand-dark:  #0f3160;
+    --color-focus:       #b4530a;
+
+    --radius:     6px;
+    --border:     1px solid var(--color-border);
+    --max-width:  900px;
+
+    /* New today. The smallest a card is allowed to get before the grid
+       drops to fewer columns. Keeping it as a token means the gallery and
+       the topic cards can use different minimums from the same scale. */
+    --card-min:        220px;
+    --card-min-small:  160px;
+}
+
+
+/* ---------------------------------------------------------------
+   2. Reset
+   --------------------------------------------------------------- */
+
+* {
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    box-sizing: border-box;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: inherit;
+}
+
+
+/* ---------------------------------------------------------------
+   3. Base elements
+   --------------------------------------------------------------- */
+
+body {
+    font-family: var(--font-body);
+    font-size: var(--size-md);
+    line-height: var(--leading-body);
+    color: var(--color-text);
+    background-color: var(--color-page);
+    padding: var(--space-4);
+}
+
+h1,
+h2,
+h3,
+h4 {
+    line-height: var(--leading-tight);
+    margin-bottom: var(--space-2);
+}
+
+h1 { font-size: var(--size-2xl); }
+h2 { font-size: var(--size-xl); }
+h3 { font-size: var(--size-lg); }
+h4 { font-size: var(--size-md); }
+
+p + h3,
+ul + h3,
+table + h3 {
+    margin-top: var(--space-4);
+}
+
+p {
+    margin-bottom: var(--space-2);
+}
+
+.section > p {
+    max-width: 65ch;
+}
+
+a {
+    color: var(--color-brand);
+}
+
+a:hover {
+    text-decoration: none;
+}
+
+code {
+    font-family: var(--font-mono);
+    font-size: var(--size-sm);
+    background-color: var(--color-surface-alt);
+    padding: 0 var(--space-1);
+    border-radius: 3px;
+}
+
+
+/* ---------------------------------------------------------------
+   4. Focus states
+   --------------------------------------------------------------- */
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+    outline: 3px solid var(--color-focus);
+    outline-offset: 2px;
+    border-radius: 2px;
+}
+
+@supports not selector(:focus-visible) {
+    a:focus,
+    button:focus,
+    input:focus,
+    textarea:focus {
+        outline: 3px solid var(--color-focus);
+        outline-offset: 2px;
+    }
+}
+
+.skip-link {
+    position: absolute;
+    left: -9999px;
+}
+
+.skip-link:focus {
+    position: static;
+    display: inline-block;
+    margin-bottom: var(--space-3);
+}
+
+
+/* ---------------------------------------------------------------
+   5. Utility classes
+   --------------------------------------------------------------- */
+
+.text-xs     { font-size: var(--size-xs); }
+.text-sm     { font-size: var(--size-sm); }
+.text-lg     { font-size: var(--size-lg); }
+
+.text-muted  { color: var(--color-text-muted); }
+.text-center { text-align: center; }
+
+
+/* ---------------------------------------------------------------
+   6. Header - still Flexbox (one dimension, content-sized)
+   --------------------------------------------------------------- */
+
+.site-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-4);
+
+    background-color: var(--color-surface);
+    border: var(--border);
+    border-radius: var(--radius);
+    padding: var(--space-4);
+    margin-bottom: var(--space-3);
+}
+
+.profile {
+    flex: 0 0 auto;
+    text-align: center;
+}
+
+.profile__image {
+    border: 4px solid var(--color-border);
+    border-radius: 50%;
+    height: auto;
+}
+
+.profile__caption {
+    margin-top: var(--space-2);
+}
+
+.site-header__text {
+    flex: 1 1 260px;
+}
+
+.site-title {
+    margin-bottom: var(--space-1);
+}
+
+.site-tagline,
+.site-header__meta {
+    margin-bottom: 0;
+}
+
+.site-header__meta {
+    margin-top: var(--space-2);
+}
+
+
+/* ---------------------------------------------------------------
+   7. Navigation - still Flexbox (a single wrapping line of links)
+   --------------------------------------------------------------- */
+
+.site-nav {
+    background-color: var(--color-surface);
+    border: var(--border);
+    border-radius: var(--radius);
+    padding: var(--space-2) var(--space-4);
+    margin-bottom: var(--space-3);
+}
+
+.nav-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-4);
+    list-style: none;
+}
+
+.nav-list a {
+    display: inline-block;
+    padding: var(--space-1) 0;
+}
+
+
+/* ---------------------------------------------------------------
+   8. Page layout
+   --------------------------------------------------------------- */
+
+.page {
+    max-width: var(--max-width);
+    margin: 0 auto;
+}
+
+.section {
+    background-color: var(--color-surface);
+    border: var(--border);
+    border-radius: var(--radius);
+    padding: var(--space-4);
+    margin-bottom: var(--space-3);
+}
+
+.site-footer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: var(--space-2);
+
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: var(--space-3) var(--space-4);
+    color: var(--color-text-muted);
+    font-size: var(--size-sm);
+}
+
+.site-footer p {
+    margin-bottom: 0;
+}
+
+
+/* ---------------------------------------------------------------
+   9. Card grids - was .card-row (Flexbox) on Day 8
+   --------------------------------------------------------------- */
+
+.card-grid {
+    display: grid;
+    /* auto-fit fits as many CARD-MIN wide columns as the container allows
+       and then stretches them to 1fr each. minmax() is what allows a track
+       to have a floor and still be flexible above it. */
+    grid-template-columns: repeat(auto-fit, minmax(var(--card-min), 1fr));
+    gap: var(--space-3);
+    list-style: none;
+    margin-bottom: var(--space-3);
+}
+
+.gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(var(--card-min), 1fr));
+    /* 1fr on the implicit rows makes every row the same height, so the cards
+       line up across rows. This is the thing Flexbox could not do on Day 8,
+       because each wrapped flex line is sized on its own. */
+    grid-auto-rows: 1fr;
+    gap: var(--space-3);
+    list-style: none;
+    margin-bottom: var(--space-3);
+}
+
+.topic-card,
+.project-card {
+    background-color: var(--color-surface-alt);
+    border: var(--border);
+    border-radius: var(--radius);
+    padding: var(--space-3);
+}
+
+.topic-card p,
+.project-card p {
+    margin-bottom: 0;
+}
+
+.project-card {
+    /* A grid item can still be a flex container. The card is a column so the
+       meta line can be pushed to the bottom with an auto margin, exactly as
+       it was on Day 8. */
+    display: flex;
+    flex-direction: column;
+    border-left: 4px solid var(--color-brand);
+}
+
+.project-card__meta {
+    margin-top: auto;
+    padding-top: var(--space-3);
+}
+
+.project-card--featured {
+    /* Spans two ROWS rather than two columns. A column span of 2 overflows
+       once the grid is down to a single column, because the extra column is
+       created implicitly. A row span is safe at every width. */
+    grid-row: span 2;
+    background-color: var(--color-surface);
+    border-left-width: 6px;
+}
+
+
+/* ---------------------------------------------------------------
+   10. Other components
+   --------------------------------------------------------------- */
+
+.card {
+    background-color: var(--color-surface-alt);
+    border-left: 4px solid var(--color-brand);
+    border-radius: var(--radius);
+    padding: var(--space-3);
+    margin-bottom: var(--space-3);
+}
+
+.progress-table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-bottom: var(--space-2);
+}
+
+.progress-table caption {
+    text-align: left;
+    font-size: var(--size-sm);
+    color: var(--color-text-muted);
+    margin-bottom: var(--space-2);
+}
+
+.progress-table th,
+.progress-table td {
+    border: var(--border);
+    padding: var(--space-2) var(--space-3);
+    text-align: left;
+}
+
+.progress-table thead th {
+    background-color: var(--color-surface-alt);
+}
+
+
+/* ---------------------------------------------------------------
+   11. Form - still Flexbox
+   --------------------------------------------------------------- */
+
+.contact-form fieldset {
+    border: var(--border);
+    border-radius: var(--radius);
+    padding: var(--space-3);
+}
+
+.contact-form legend {
+    padding: 0 var(--space-2);
+    font-weight: 600;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    margin-bottom: var(--space-3);
+}
+
+.field label {
+    font-size: var(--size-sm);
+    font-weight: 600;
+}
+
+.field input,
+.field textarea {
+    font-family: inherit;
+    font-size: inherit;
+    width: 100%;
+    padding: var(--space-2);
+    border: 1px solid var(--color-text-muted);
+    border-radius: var(--radius);
+    background-color: var(--color-surface);
+    color: var(--color-text);
+}
+
+.field-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+}
+
+.field-row .field {
+    flex: 1 1 180px;
+    min-width: 0;
+}
+
+.form-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    justify-content: flex-end;
+}
+
+.button {
+    font-family: inherit;
+    font-size: inherit;
+    background-color: var(--color-brand);
+    color: var(--color-surface);
+    border: 1px solid var(--color-brand);
+    border-radius: var(--radius);
+    padding: var(--space-2) var(--space-4);
+    cursor: pointer;
+}
+
+.button:hover {
+    background-color: var(--color-brand-dark);
+    border-color: var(--color-brand-dark);
+}
+
+.button--quiet {
+    background-color: transparent;
+    color: var(--color-brand);
+}
+
+.button--quiet:hover {
+    background-color: var(--color-surface-alt);
+    border-color: var(--color-brand);
+}
+
+
+/* ---------------------------------------------------------------
+   12. Grid Tracks demo (replaces the Day 8 card-row demo text)
+   --------------------------------------------------------------- */
+
+.track-demo {
+    display: grid;
+    gap: var(--space-2);
+    list-style: none;
+    margin-bottom: var(--space-3);
+}
+
+.track-demo--explicit {
+    /* Four fixed tracks. minmax(0, 1fr) rather than plain 1fr, because 1fr
+       is really minmax(auto, 1fr) and refuses to shrink below the content.
+       This is the same trap as min-width: 0 on a flex item. */
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-auto-rows: 56px;
+}
+
+.track-demo--auto {
+    grid-template-columns: repeat(auto-fit, minmax(var(--card-min-small), 1fr));
+    grid-auto-rows: 56px;
+}
+
+.track-demo__cell {
+    display: grid;
+    /* place-items is align-items + justify-items in one declaration, and it
+       centres the text on both axes without any extra wrapper element. */
+    place-items: center;
+    text-align: center;
+
+    background-color: var(--color-surface-alt);
+    border: var(--border);
+    border-radius: var(--radius);
+    font-size: var(--size-xs);
+    padding: var(--space-1);
+    overflow-wrap: anywhere;
+}
+
+.track-demo__cell--wide {
+    /* Safe here because this grid always has exactly four columns. */
+    grid-column: span 2;
+    background-color: var(--color-surface);
+    border-left: 4px solid var(--color-brand);
+}
+
+.track-demo__cell--tall {
+    grid-row: span 2;
+    background-color: var(--color-surface);
+    border-left: 4px solid var(--color-brand);
+}
