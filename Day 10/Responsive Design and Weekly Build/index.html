@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Aakash Marigeri | Front-End Internship</title>
+
+    <meta name="description" content="Aakash Marigeri's front-end development internship portfolio. A responsive, accessible profile site built with semantic HTML and CSS, no framework.">
+    <link rel="icon" href="assets/profiles-160.png" type="image/png">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+
+    <header class="site-header">
+        <figure class="profile">
+            <img class="profile__image"
+                 src="assets/profiles-320.png"
+                 srcset="assets/profiles-160.png 160w,
+                         assets/profiles-320.png 320w,
+                         assets/profiles.png 793w"
+                 sizes="(min-width: 40em) 160px, 112px"
+                 alt="Portrait photo of Aakash Marigeri"
+                 width="160" height="163">
+            <figcaption class="profile__caption text-muted text-sm">Cybersecurity Undergraduate</figcaption>
+        </figure>
+
+        <div class="site-header__text">
+            <h1 class="site-title">Aakash Marigeri</h1>
+            <p class="site-tagline text-muted">Cybersecurity Undergraduate | Front-End Developer Intern</p>
+            <p class="site-header__meta text-sm text-muted">
+                Portfolio v2 &mdash; built with semantic HTML and CSS, no framework.
+            </p>
+        </div>
+    </header>
+
+    <nav class="site-nav" aria-label="Sections of this page">
+        <ul class="nav-list">
+            <li><a href="#about">About Me</a></li>
+            <li><a href="#learning">What I'm Learning</a></li>
+            <li><a href="#projects">Projects</a></li>
+            <li><a href="#goal">My Goal</a></li>
+            <li><a href="#contact">Contact Me</a></li>
+        </ul>
+    </nav>
+
+    <main class="page" id="main-content">
+
+        <section class="section" id="about">
+            <h2>About Me</h2>
+
+            <p>
+                I am a cybersecurity undergraduate currently learning
+                front-end web development through a practical internship.
+            </p>
+
+            <p>
+                I am currently building my understanding of HTML,
+                CSS and JavaScript through practical exercises.
+            </p>
+        </section>
+
+        <section class="section" id="learning">
+            <h2>What I'm Learning</h2>
+
+            <article class="card">
+                <h3>My Front-End Learning Journey</h3>
+                <p>
+                    I am currently learning HTML, CSS, JavaScript, TypeScript,
+                    React, and Angular as part of my front-end development training.
+                </p>
+            </article>
+
+            <h3>Topics In My Course</h3>
+
+            <ul class="card-grid">
+                <li class="topic-card">
+                    <h4>HTML</h4>
+                    <p class="text-sm">Semantic structure, forms and accessibility.</p>
+                </li>
+
+                <li class="topic-card">
+                    <h4>CSS</h4>
+                    <p class="text-sm">Cascade, box model, design tokens and layout.</p>
+                </li>
+
+                <li class="topic-card">
+                    <h4>JavaScript</h4>
+                    <p class="text-sm">Language fundamentals, the DOM and async work.</p>
+                </li>
+
+                <li class="topic-card">
+                    <h4>TypeScript</h4>
+                    <p class="text-sm">Static types on top of real front-end code.</p>
+                </li>
+
+                <li class="topic-card">
+                    <h4>React and Angular</h4>
+                    <p class="text-sm">Component-driven applications and routing.</p>
+                </li>
+            </ul>
+
+            <h3>My Progress So Far</h3>
+
+            <!-- The table is the one thing on the page allowed to scroll
+                 sideways, so it gets its own scroll container with a label
+                 and a tabindex so it can be reached by keyboard. -->
+            <div class="table-scroll" tabindex="0" role="region"
+                 aria-label="Progress table, scrollable sideways on small screens">
+                <table class="progress-table">
+                    <caption>Technologies I am learning and my current status</caption>
+
+                    <thead>
+                        <tr>
+                            <th scope="col">Technology</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Week</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr>
+                            <th scope="row">HTML</th>
+                            <td>Completed</td>
+                            <td>Week 1</td>
+                        </tr>
+
+                        <tr>
+                            <th scope="row">CSS</th>
+                            <td>Completed</td>
+                            <td>Week 2</td>
+                        </tr>
+
+                        <tr>
+                            <th scope="row">JavaScript</th>
+                            <td>Next</td>
+                            <td>Week 3</td>
+                        </tr>
+
+                        <tr>
+                            <th scope="row">TypeScript</th>
+                            <td>Upcoming</td>
+                            <td>Week 5</td>
+                        </tr>
+
+                        <tr>
+                            <th scope="row">React</th>
+                            <td>Upcoming</td>
+                            <td>Weeks 6 to 8</td>
+                        </tr>
+
+                        <tr>
+                            <th scope="row">Angular</th>
+                            <td>Upcoming</td>
+                            <td>Weeks 9 to 12</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="section" id="projects">
+            <h2>Projects</h2>
+
+            <p>
+                A Grid gallery. The number of columns follows the width of the
+                screen, and the featured card widens to two columns only once
+                there are two columns for it to span.
+            </p>
+
+            <ul class="gallery">
+                <li class="project-card project-card--featured">
+                    <h3>Portfolio v2</h3>
+                    <p class="text-sm">
+                        This site. Semantic HTML from Week 1, a token-driven
+                        stylesheet, a Flexbox header and navigation, a Grid gallery
+                        and mobile-first breakpoints. No CSS framework and no
+                        JavaScript.
+                    </p>
+                    <p class="project-card__meta text-xs text-muted">Week 2 &mdash; complete</p>
+                </li>
+
+                <li class="project-card">
+                    <h3>Profile Site v1</h3>
+                    <p class="text-sm">
+                        A semantic, accessible profile page built with HTML only.
+                        No CSS and no JavaScript.
+                    </p>
+                    <p class="project-card__meta text-xs text-muted">Week 1 &mdash; complete</p>
+                </li>
+
+                <li class="project-card">
+                    <h3>Expense Analyzer</h3>
+                    <p class="text-sm">
+                        A console project using functions, arrays and objects, with
+                        input validation and error handling.
+                    </p>
+                    <p class="project-card__meta text-xs text-muted">Week 3 &mdash; next</p>
+                </li>
+
+                <li class="project-card">
+                    <h3>API Browser App</h3>
+                    <p class="text-sm">
+                        A small browser app that reads user input, renders a list
+                        from a public JSON API and stores data locally.
+                    </p>
+                    <p class="project-card__meta text-xs text-muted">Week 4 &mdash; planned</p>
+                </li>
+
+                <li class="project-card">
+                    <h3>Typed Migration</h3>
+                    <p class="text-sm">
+                        The same browser app converted to TypeScript, with typed
+                        API responses and no unexplained <code>any</code>.
+                    </p>
+                    <p class="project-card__meta text-xs text-muted">Week 5 &mdash; planned</p>
+                </li>
+            </ul>
+        </section>
+
+        <section class="section" id="goal">
+            <h2>My Goal</h2>
+
+            <p>
+                Build practical, accessible and responsive web applications
+                while developing a strong foundation in front-end development.
+            </p>
+
+            <p>
+                By the end of this course I want to be able to build and deploy
+                a complete front-end application using React and Angular.
+            </p>
+        </section>
+
+        <section class="section" id="contact">
+            <h2>Contact Me</h2>
+
+            <form class="contact-form">
+                <fieldset>
+                    <legend>Contact Information</legend>
+
+                    <div class="field">
+                        <label for="name">Name</label>
+                        <input type="text" id="name" name="name" autocomplete="name" required>
+                    </div>
+
+                    <div class="field">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" autocomplete="email" required>
+                    </div>
+
+                    <div class="field-row">
+                        <div class="field">
+                            <label for="age">Age</label>
+                            <input type="number" id="age" name="age" min="18" max="100" required>
+                        </div>
+
+                        <div class="field">
+                            <label for="phone">Phone</label>
+                            <input type="tel" id="phone" name="phone" autocomplete="tel"
+                                   inputmode="numeric" pattern="[0-9]{10}" required>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label for="message">Message</label>
+                        <textarea id="message" name="message" rows="5" required></textarea>
+                    </div>
+
+                    <div class="form-actions">
+                        <button class="button button--quiet" type="reset">Clear</button>
+                        <button class="button" type="submit">Send message</button>
+                    </div>
+                </fieldset>
+            </form>
+        </section>
+
+    </main>
+
+    <footer class="site-footer">
+        <p>Front-End Web Development Internship</p>
+        <p class="text-sm">Week 2 &mdash; Portfolio v2 complete</p>
+    </footer>
+
+</body>
+</html>

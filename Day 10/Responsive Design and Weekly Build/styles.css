@@ -1,0 +1,584 @@
+/* Day 10 - Responsive design and weekly build (Portfolio v2)
+   Mobile first. Everything from section 1 to 11 is the small-screen layout.
+   Section 12 holds every breakpoint, and all of them are min-width only. */
+
+
+/* ---------------------------------------------------------------
+   1. Design tokens
+   --------------------------------------------------------------- */
+
+:root {
+    /* Fluid steps. clamp(MIN, PREFERRED, MAX) - the preferred value carries a
+       vw term so the size grows with the viewport, and the two ends stop it
+       from ever getting silly. The smaller steps stay fixed, because body text
+       should follow the reader's font setting and not the window width. */
+    --size-xs:   0.75rem;
+    --size-sm:   0.875rem;
+    --size-md:   1rem;
+    --size-lg:   clamp(1.125rem, 1.05rem + 0.4vw, 1.25rem);
+    --size-xl:   clamp(1.25rem,  1.10rem + 0.8vw, 1.5rem);
+    --size-2xl:  clamp(1.5rem,   1.15rem + 1.8vw, 2rem);
+
+    --leading-tight: 1.25;
+    --leading-body:  1.6;
+
+    --font-body: "Segoe UI", Arial, Helvetica, sans-serif;
+    --font-mono: "Courier New", Courier, monospace;
+
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 16px;
+    --space-4: 24px;
+    --space-5: 32px;
+    --space-6: 48px;
+
+    --color-page:        #f4f6f8;
+    --color-surface:     #ffffff;
+    --color-surface-alt: #eef3f9;
+    --color-border:      #d8dee6;
+    --color-text:        #1c2126;
+    --color-text-muted:  #5a646e;
+    --color-brand:       #17457f;
+    --color-brand-dark:  #0f3160;
+    --color-focus:       #b4530a;
+
+    --radius:     6px;
+    --border:     1px solid var(--color-border);
+    --max-width:  900px;
+
+    --card-min:       220px;
+    --card-min-small: 160px;
+
+    /* Breakpoints are listed here for reference only. A custom property
+       CANNOT be used inside a media query condition - @media (min-width:
+       var(--bp-md)) is simply ignored - so the numbers in section 12 are
+       written out literally and kept in step with these by hand.
+
+       --bp-md  40em = 640px   phone landscape and up
+       --bp-lg  64em = 1024px  laptop and up */
+}
+
+
+/* ---------------------------------------------------------------
+   2. Reset
+   --------------------------------------------------------------- */
+
+* {
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    box-sizing: border-box;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: inherit;
+}
+
+/* An image is replaced content with its own intrinsic width, so it will
+   happily be wider than its container unless it is told otherwise. These two
+   lines are what make every image on the page fluid. */
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+
+/* ---------------------------------------------------------------
+   3. Base elements (small screen)
+   --------------------------------------------------------------- */
+
+body {
+    font-family: var(--font-body);
+    font-size: var(--size-md);
+    line-height: var(--leading-body);
+    color: var(--color-text);
+    background-color: var(--color-page);
+    padding: var(--space-2);
+}
+
+h1,
+h2,
+h3,
+h4 {
+    line-height: var(--leading-tight);
+    margin-bottom: var(--space-2);
+    /* A long word in a heading is a common cause of sideways scrolling on a
+       narrow screen, because a heading has no wrapping opportunity inside a
+       word by default. */
+    overflow-wrap: break-word;
+}
+
+h1 { font-size: var(--size-2xl); }
+h2 { font-size: var(--size-xl); }
+h3 { font-size: var(--size-lg); }
+h4 { font-size: var(--size-md); }
+
+p + h3,
+ul + h3,
+table + h3,
+div + h3 {
+    margin-top: var(--space-4);
+}
+
+p {
+    margin-bottom: var(--space-2);
+}
+
+.section > p {
+    max-width: 65ch;
+}
+
+a {
+    color: var(--color-brand);
+}
+
+a:hover {
+    text-decoration: none;
+}
+
+code {
+    font-family: var(--font-mono);
+    font-size: var(--size-sm);
+    background-color: var(--color-surface-alt);
+    padding: 0 var(--space-1);
+    border-radius: 3px;
+    overflow-wrap: anywhere;
+}
+
+/* Jumping to a section from the nav used to put the heading hard against the
+   top edge. scroll-margin-top reserves space above the target. */
+:target {
+    scroll-margin-top: var(--space-4);
+}
+
+
+/* ---------------------------------------------------------------
+   4. Focus states
+   --------------------------------------------------------------- */
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+.table-scroll:focus-visible {
+    outline: 3px solid var(--color-focus);
+    outline-offset: 2px;
+    border-radius: 2px;
+}
+
+@supports not selector(:focus-visible) {
+    a:focus,
+    button:focus,
+    input:focus,
+    textarea:focus {
+        outline: 3px solid var(--color-focus);
+        outline-offset: 2px;
+    }
+}
+
+.skip-link {
+    position: absolute;
+    left: -9999px;
+}
+
+.skip-link:focus {
+    position: static;
+    display: inline-block;
+    margin-bottom: var(--space-3);
+}
+
+
+/* ---------------------------------------------------------------
+   5. Utility classes
+   --------------------------------------------------------------- */
+
+.text-xs     { font-size: var(--size-xs); }
+.text-sm     { font-size: var(--size-sm); }
+.text-lg     { font-size: var(--size-lg); }
+
+.text-muted  { color: var(--color-text-muted); }
+.text-center { text-align: center; }
+
+
+/* ---------------------------------------------------------------
+   6. Header - stacked and centred on a phone
+   --------------------------------------------------------------- */
+
+.site-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: var(--space-3);
+
+    background-color: var(--color-surface);
+    border: var(--border);
+    border-radius: var(--radius);
+    padding: var(--space-3);
+    margin-bottom: var(--space-3);
+}
+
+.profile {
+    flex: 0 0 auto;
+    text-align: center;
+}
+
+.profile__image {
+    /* Matches the 112px in the sizes attribute on the img. If one changes the
+       other has to change with it, or the browser downloads the wrong file. */
+    width: 112px;
+    border: 4px solid var(--color-border);
+    border-radius: 50%;
+}
+
+.profile__caption {
+    margin-top: var(--space-2);
+}
+
+.site-header__text {
+    flex: 1 1 260px;
+}
+
+.site-title {
+    margin-bottom: var(--space-1);
+}
+
+.site-tagline,
+.site-header__meta {
+    margin-bottom: 0;
+}
+
+.site-header__meta {
+    margin-top: var(--space-2);
+}
+
+
+/* ---------------------------------------------------------------
+   7. Navigation
+   --------------------------------------------------------------- */
+
+.site-nav {
+    background-color: var(--color-surface);
+    border: var(--border);
+    border-radius: var(--radius);
+    padding: var(--space-2) var(--space-3);
+    margin-bottom: var(--space-3);
+}
+
+.nav-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-2) var(--space-3);
+    list-style: none;
+}
+
+.nav-list a {
+    display: inline-block;
+    /* A vertical padding of 8px on a 14px line gives roughly a 40px tall
+       target, which is close to the 44px touch target size the guidance asks
+       for. On Day 8 these links were 24px tall and awkward on a phone. */
+    padding: var(--space-2) var(--space-1);
+}
+
+
+/* ---------------------------------------------------------------
+   8. Page layout
+   --------------------------------------------------------------- */
+
+.page {
+    /* Fluid up to a limit. width is never a fixed number anywhere on this
+       page - the max-width is the only size, and the element takes whatever
+       is available below it. */
+    max-width: var(--max-width);
+    margin: 0 auto;
+}
+
+.section {
+    background-color: var(--color-surface);
+    border: var(--border);
+    border-radius: var(--radius);
+    padding: var(--space-3);
+    margin-bottom: var(--space-3);
+}
+
+.site-footer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: var(--space-2);
+
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: var(--space-3);
+    color: var(--color-text-muted);
+    font-size: var(--size-sm);
+}
+
+.site-footer p {
+    margin-bottom: 0;
+}
+
+
+/* ---------------------------------------------------------------
+   9. Card grids
+   --------------------------------------------------------------- */
+
+.card-grid,
+.gallery {
+    display: grid;
+    /* min(220px, 100%) is the guard I was missing on Day 9. If the container
+       is narrower than the card minimum, the minimum becomes 100% instead and
+       the track stops forcing the grid wider than the screen. */
+    grid-template-columns: repeat(auto-fit, minmax(min(var(--card-min), 100%), 1fr));
+    gap: var(--space-3);
+    list-style: none;
+    margin-bottom: var(--space-3);
+}
+
+.gallery {
+    grid-auto-rows: 1fr;
+}
+
+.topic-card,
+.project-card {
+    background-color: var(--color-surface-alt);
+    border: var(--border);
+    border-radius: var(--radius);
+    padding: var(--space-3);
+}
+
+.topic-card p,
+.project-card p {
+    margin-bottom: 0;
+}
+
+.project-card {
+    display: flex;
+    flex-direction: column;
+    border-left: 4px solid var(--color-brand);
+}
+
+.project-card__meta {
+    margin-top: auto;
+    padding-top: var(--space-3);
+}
+
+.project-card--featured {
+    background-color: var(--color-surface);
+    border-left-width: 6px;
+}
+
+
+/* ---------------------------------------------------------------
+   10. Other components
+   --------------------------------------------------------------- */
+
+.card {
+    background-color: var(--color-surface-alt);
+    border-left: 4px solid var(--color-brand);
+    border-radius: var(--radius);
+    padding: var(--space-3);
+    margin-bottom: var(--space-3);
+}
+
+/* The table is the one element allowed to be wider than the screen, so it
+   gets its own scroll container rather than pushing the whole page sideways. */
+.table-scroll {
+    overflow-x: auto;
+    margin-bottom: var(--space-2);
+}
+
+.progress-table {
+    border-collapse: collapse;
+    width: 100%;
+    /* Below this the columns squash into one word per line and the table is
+       harder to read than a sideways scroll. */
+    min-width: 380px;
+}
+
+.progress-table caption {
+    text-align: left;
+    font-size: var(--size-sm);
+    color: var(--color-text-muted);
+    margin-bottom: var(--space-2);
+}
+
+.progress-table th,
+.progress-table td {
+    border: var(--border);
+    padding: var(--space-2) var(--space-3);
+    text-align: left;
+}
+
+.progress-table thead th {
+    background-color: var(--color-surface-alt);
+}
+
+
+/* ---------------------------------------------------------------
+   11. Form
+   --------------------------------------------------------------- */
+
+.contact-form fieldset {
+    border: var(--border);
+    border-radius: var(--radius);
+    padding: var(--space-3);
+}
+
+.contact-form legend {
+    padding: 0 var(--space-2);
+    font-weight: 600;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    margin-bottom: var(--space-3);
+}
+
+.field label {
+    font-size: var(--size-sm);
+    font-weight: 600;
+}
+
+.field input,
+.field textarea {
+    font-family: inherit;
+    /* 16px exactly. iOS Safari zooms the page in when a focused control has
+       text smaller than 16px, and the zoom is not undone afterwards. */
+    font-size: var(--size-md);
+    width: 100%;
+    padding: var(--space-2);
+    border: 1px solid var(--color-text-muted);
+    border-radius: var(--radius);
+    background-color: var(--color-surface);
+    color: var(--color-text);
+}
+
+.field-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+}
+
+.field-row .field {
+    flex: 1 1 180px;
+    min-width: 0;
+}
+
+.form-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    justify-content: flex-end;
+}
+
+.button {
+    font-family: inherit;
+    font-size: var(--size-md);
+    background-color: var(--color-brand);
+    color: var(--color-surface);
+    border: 1px solid var(--color-brand);
+    border-radius: var(--radius);
+    padding: var(--space-3) var(--space-4);
+    cursor: pointer;
+    /* On a phone the two buttons each take the full width and stack, which is
+       easier to hit than two small side-by-side targets. */
+    flex: 1 1 100%;
+}
+
+.button:hover {
+    background-color: var(--color-brand-dark);
+    border-color: var(--color-brand-dark);
+}
+
+.button--quiet {
+    background-color: transparent;
+    color: var(--color-brand);
+}
+
+.button--quiet:hover {
+    background-color: var(--color-surface-alt);
+    border-color: var(--color-brand);
+}
+
+
+/* ---------------------------------------------------------------
+   12. Breakpoints
+
+   Every query is min-width, so each block is something ADDED once there is
+   room for it. Nothing here undoes a small-screen style, it only enhances.
+   The values are the two points where the layout above stopped looking
+   right, not device sizes.
+   --------------------------------------------------------------- */
+
+/* 40em = 640px. There is now room for the header to be a row and for the
+   buttons to sit side by side. */
+@media (min-width: 40em) {
+
+    body {
+        padding: var(--space-4);
+    }
+
+    .site-header {
+        flex-direction: row;
+        align-items: center;
+        text-align: left;
+        gap: var(--space-4);
+        padding: var(--space-4);
+    }
+
+    .profile__image {
+        width: 160px;
+    }
+
+    .site-nav {
+        padding: var(--space-2) var(--space-4);
+    }
+
+    .nav-list {
+        justify-content: flex-start;
+        gap: var(--space-2) var(--space-4);
+    }
+
+    .section {
+        padding: var(--space-4);
+    }
+
+    .site-footer {
+        padding: var(--space-3) var(--space-4);
+    }
+
+    .button {
+        /* Back to content width, side by side on the right. */
+        flex: 0 0 auto;
+        padding: var(--space-2) var(--space-4);
+    }
+
+    /* The Day 9 bug, fixed properly. The featured card only spans two columns
+       once the grid is guaranteed to have at least two columns to span, which
+       at a 220px minimum happens comfortably above 640px. */
+    .project-card--featured {
+        grid-column: span 2;
+    }
+}
+
+/* 64em = 1024px. Only spacing changes here - the layout was already right. */
+@media (min-width: 64em) {
+
+    body {
+        padding: var(--space-5);
+    }
+
+    .card-grid,
+    .gallery {
+        gap: var(--space-4);
+    }
+}
