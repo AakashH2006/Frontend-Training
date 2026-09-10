@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Day 18 | API Browser</title>
+
+    <meta name="description" content="Day 18: calling a public JSON API with fetch and async/await, handling loading, success, empty and error states.">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <div class="page">
+
+        <header class="app-header">
+            <h1>API Browser</h1>
+            <p class="text-muted">
+                Day 18 &mdash; the directory is loaded from
+                <code>jsonplaceholder.typicode.com</code>, a public JSON API
+                that needs no key. The data is fake, which does not matter:
+                the point is the four states every request has &mdash;
+                loading, success, empty and error.
+            </p>
+            <p class="text-sm text-muted">
+                The buttons below force the failure paths on purpose, since a
+                request that always succeeds only ever exercises one of them.
+            </p>
+        </header>
+
+        <section class="panel" aria-labelledby="controls-heading">
+            <h2 id="controls-heading">Directory</h2>
+
+            <div class="toolbar">
+                <div class="field">
+                    <label for="search">Filter by name or company</label>
+                    <input type="search" id="search" autocomplete="off"
+                           placeholder="Leanne, Romaguera...">
+                </div>
+            </div>
+
+            <ul class="filters">
+                <li><button class="button button--small" type="button"
+                            id="reload">Reload</button></li>
+                <li><button class="button button--quiet button--small" type="button"
+                            id="force-404">Force a 404</button></li>
+                <li><button class="button button--quiet button--small" type="button"
+                            id="force-network">Force a network error</button></li>
+                <li><button class="button button--quiet button--small" type="button"
+                            id="force-empty">Force an empty result</button></li>
+            </ul>
+
+            <!-- role="status" is an aria-live region: the request state is
+                 announced without stealing focus. -->
+            <p class="status" id="status" role="status"></p>
+
+            <div id="results"></div>
+        </section>
+
+        <section class="panel" aria-labelledby="detail-heading">
+            <h2 id="detail-heading">Details</h2>
+            <div id="detail">
+                <p class="empty-state">Choose someone from the directory.</p>
+            </div>
+        </section>
+
+        <template id="card-template">
+            <li class="result-card">
+                <h3 class="result-card__name"></h3>
+                <p class="result-card__meta" data-field="email"></p>
+                <p class="result-card__meta" data-field="company"></p>
+                <p class="result-card__meta" data-field="city"></p>
+                <p class="result-card__actions">
+                    <button class="button button--small" type="button"
+                            data-action="detail">View posts</button>
+                </p>
+            </li>
+        </template>
+
+        <template id="skeleton-template">
+            <li class="skeleton">
+                <div class="skeleton__line skeleton__line--short"></div>
+                <div class="skeleton__line skeleton__line--long"></div>
+                <div class="skeleton__line skeleton__line--long"></div>
+                <div class="skeleton__line skeleton__line--short"></div>
+            </li>
+        </template>
+
+    </div>
+
+    <script src="app.js" defer></script>
+</body>
+</html>
