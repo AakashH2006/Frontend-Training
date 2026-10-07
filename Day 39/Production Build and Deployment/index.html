@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Day 39 | Production Build and Deployment</title>
+
+    <meta name="description" content="Day 39: a production build, a local preview, the SPA rewrite problem, base paths and a static deployment.">
+
+    <script>
+        /* The other half of the 404.html trick: take the path back out of the
+           query string and restore it, before the bundle loads and the router
+           reads the URL.
+
+           Inline and synchronous on purpose - it has to run before React
+           Router initialises, and an external script would be a second
+           request that may or may not win that race. */
+        (function () {
+            var params = new URLSearchParams(window.location.search);
+            var redirect = params.get("redirect");
+            if (!redirect) return;
+
+            params.delete("redirect");
+            var query = params.toString();
+
+            window.history.replaceState(
+                null,
+                "",
+                redirect + (query ? "?" + query : "") + window.location.hash
+            );
+        })();
+    </script>
+</head>
+<body>
+
+    <!-- The whole page is rendered by React into this one node.
+
+         Week 4's index.html was 188 lines of markup with four <template>
+         elements; this is one div. The templates are gone because a component
+         is a better template: it takes typed arguments and returns a tree,
+         rather than being cloned and then populated by hand. -->
+    <div id="root"></div>
+
+    <script type="module" src="/src/main.tsx"></script>
+</body>
+</html>

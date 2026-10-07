@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Redirecting…</title>
+
+    <!--
+      GitHub Pages has no rewrite rules. It serves 404.html for any path that
+      is not a file, and that is the only hook available - so this page turns
+      the 404 into a redirect that preserves the path the user asked for.
+
+      How it works: /repo/list 404s, GitHub serves this file, the script below
+      rewrites the URL to /repo/?redirect=/list and replaces the history entry.
+      index.html then loads, reads that parameter, and puts the real path back
+      before React Router ever runs.
+
+      It is a hack. It is also the only thing that works on Pages, and the
+      alternative is HashRouter and /#/list in every shared URL.
+    -->
+    <script>
+        (function () {
+            // The repo name, taken from the first path segment. A user or
+            // organisation site is served from the domain root and has none,
+            // which is why this is computed rather than hard-coded.
+            var segments = window.location.pathname.split("/");
+            var base = segments.length > 2 ? "/" + segments[1] + "/" : "/";
+
+            var path = window.location.pathname.slice(base.length);
+            var target =
+                base +
+                "?redirect=/" + path +
+                (window.location.search ? "&" + window.location.search.slice(1) : "") +
+                window.location.hash;
+
+            // replace, not assign: the 404 URL should not be left in the
+            // history, or the back button lands on it again.
+            window.location.replace(target);
+        })();
+    </script>
+</head>
+<body>
+    <p>Redirecting&hellip;</p>
+    <!-- Visible only if JavaScript is off, in which case the app would not
+         run either - but a dead end with no explanation is worse. -->
+    <noscript>This page needs JavaScript. <a href="/">Go to the start</a>.</noscript>
+</body>
+</html>
