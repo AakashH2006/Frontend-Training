@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Day 21 | TypeScript Setup and Everyday Types</title>
+
+    <meta name="description" content="Day 21: a first Vite + TypeScript project, and the everyday types - primitives, arrays, tuples, object types, unions, literals, any against unknown, and strictNullChecks.">
+</head>
+<body>
+
+    <main class="page">
+        <h1>Day 21 &mdash; TypeScript Setup and Everyday Types</h1>
+
+        <p class="text-muted">
+            The first day of Week 5, and the first day with a build step. Ten
+            sections on the types used every day, all of them printing to the
+            console in the same shape as the Week 3 exercise files.
+        </p>
+
+        <p class="status" id="output">Not run yet.</p>
+
+        <h2>How to run it</h2>
+
+<pre><code>npm install
+npm run dev</code></pre>
+
+        <p>
+            Then open the address Vite prints and the DevTools console
+            (<code>F12</code>, then the Console tab).
+        </p>
+
+        <p class="text-muted">
+            There is no way to open this one by double-clicking
+            <code>index.html</code>. The browser cannot run
+            <code>.ts</code>, so the file below is served by Vite and compiled
+            on the way through. That is the difference from every day before
+            this one.
+        </p>
+
+        <h2>Type-check on its own</h2>
+
+<pre><code>npm run typecheck</code></pre>
+
+        <p>
+            This is the part that matters, and it is separate from running the
+            app on purpose. Vite strips the types out without checking them, so
+            the dev server will happily serve a file full of type errors.
+            <code>tsc --noEmit</code> is the only thing that actually reads
+            them.
+        </p>
+
+        <p>
+            It should report <strong>no errors</strong>. The file contains ten
+            deliberate mistakes, each one marked
+            <code>@ts&#8209;expect&#8209;error</code> &mdash; that comment
+            asserts the line below it <em>is</em> an error, so a clean run means
+            every one of them is still wrong in the way I expected.
+        </p>
+
+        <h2>What the sections cover</h2>
+
+        <ol>
+            <li>Primitives, and what inference gives
+                <code>const</code> against <code>let</code></li>
+            <li>Where an annotation earns its place and where it is noise</li>
+            <li>Arrays, tuples, and what
+                <code>noUncheckedIndexedAccess</code> changes</li>
+            <li>Object types, optional properties, and excess property checks</li>
+            <li>Unions, and why only the shared members are available</li>
+            <li>Type aliases and literal types</li>
+            <li><code>any</code> against <code>unknown</code></li>
+            <li><code>null</code>, <code>undefined</code> and the DOM</li>
+            <li>Assertions, <code>as unknown as</code>, and
+                <code>satisfies</code></li>
+            <li><code>enum</code> against a union of literals</li>
+        </ol>
+
+        <p class="text-muted">
+            Written up in <code>Day 21/notes.md</code>.
+        </p>
+    </main>
+
+    <script type="module" src="/src/main.ts"></script>
+</body>
+</html>
