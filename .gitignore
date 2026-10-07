@@ -1,0 +1,30 @@
+# Dependencies - installed with `npm install`, never committed.
+node_modules/
+
+# Build output.
+dist/
+build/
+.vite/
+
+# Test and coverage output.
+coverage/
+.nyc_output/
+
+# Angular cache.
+.angular/
+
+# Editor and OS noise.
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+Thumbs.db
+
+# Local environment files.
+.env
+.env.local
+.env.*.local
+
+# Logs.
+*.log
+npm-debug.log*
