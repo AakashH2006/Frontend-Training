@@ -1,0 +1,50 @@
+<article class="book-card" [class.book-card--finished]="contact().favourite">
+    <h3 class="book-card__title">
+        {{ contact().name }}
+        @if (contact().favourite) {
+            <span class="badge badge--finished">Favourite</span>
+        }
+    </h3>
+
+    <p class="book-card__meta">{{ reachLine() }}</p>
+    <p class="book-card__meta">{{ groupLabels[contact().group] }}</p>
+
+    @if (contact().tags.length > 0) {
+        <ul class="tags">
+            @for (tag of contact().tags; track tag) {
+                <li class="tag">{{ tag }}</li>
+            }
+        </ul>
+    }
+
+    @if (contact().note !== undefined) {
+        <p class="book-card__note">{{ contact().note }}</p>
+    }
+
+    <div class="form-actions">
+        <button
+            type="button"
+            class="button button--quiet button--small"
+            [attr.aria-pressed]="contact().favourite"
+            (click)="toggleFavourite.emit(contact().id)"
+        >
+            {{ contact().favourite ? 'Unfavourite' : 'Favourite' }}
+        </button>
+
+        <button
+            type="button"
+            class="button button--quiet button--small"
+            (click)="edit.emit(contact())"
+        >
+            Edit
+        </button>
+
+        <button
+            type="button"
+            class="button button--danger button--small"
+            (click)="remove.emit(contact().id)"
+        >
+            Remove
+        </button>
+    </div>
+</article>

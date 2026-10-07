@@ -1,0 +1,158 @@
+<div class="page">
+    <header class="app-header">
+        <h1>Contacts</h1>
+        <p class="text-muted">
+            Day 50 &mdash; the Week 10 build. A create and edit flow with seven
+            controls, six validators, a cross-field rule, and every piece of
+            state in a service.
+        </p>
+
+        <app-notice-bar />
+
+        <p
+            class="status text-sm"
+            [class.status--error]="storage.problem() !== null || !storage.available"
+            role="status"
+            id="storage-note"
+        >
+            @if (storage.problem(); as problem) {
+                {{ problem }}
+            } @else if (storage.available) {
+                Saved in this browser. The list will still be here after a reload.
+            } @else {
+                This browser is blocking local storage, so changes will be lost on reload.
+            }
+        </p>
+    </header>
+
+    <main id="main">
+        <app-panel
+            [heading]="editing() ? 'Editing ' + editing()!.name : 'Add a contact'"
+            headingId="form"
+        >
+            <!-- One component, both jobs. The parent decides which by whether
+                 it has called fillFrom, and the form shows Cancel or Clear
+                 accordingly. -->
+            <app-contact-form
+                [existing]="contacts.contacts()"
+                [knownTags]="contacts.allTags()"
+                [submitLabel]="editing() ? 'Save changes' : 'Add contact'"
+                (save)="onSave($event)"
+                (cancel)="cancelEdit()"
+            />
+        </app-panel>
+
+        <app-panel heading="Your contacts" headingId="list">
+            <button
+                panel-actions
+                type="button"
+                class="button button--quiet button--small"
+                id="reset"
+                (click)="contacts.reset()"
+            >
+                Reset
+            </button>
+
+            <ul class="summary" aria-label="Group summary">
+                <app-stat label="Contacts" [value]="contacts.total()" />
+                <app-stat label="Favourites" [value]="contacts.favourites()" />
+                @for (group of groups; track group) {
+                    <app-stat
+                        [label]="groupLabels[group]"
+                        [value]="contacts.counts()[group]"
+                    />
+                }
+            </ul>
+
+            <div class="toolbar">
+                <div class="field">
+                    <label for="list-query">Search</label>
+                    <input
+                        id="list-query"
+                        type="search"
+                        placeholder="name, email, phone or tag"
+                        autocomplete="off"
+                        [value]="contacts.query()"
+                        (input)="onQuery($event)"
+                    />
+                </div>
+
+                <div class="field">
+                    <label for="list-sort">Sort by</label>
+                    <select id="list-sort" [value]="contacts.sort()" (change)="onSort($event)">
+                        @for (option of sorts; track option) {
+                            <option [value]="option">{{ sortLabels[option] }}</option>
+                        }
+                    </select>
+                </div>
+            </div>
+
+            <ul class="filters">
+                @for (option of filters; track option) {
+                    <li>
+                        <button
+                            type="button"
+                            class="button button--quiet button--small filter"
+                            [attr.aria-pressed]="option === contacts.filter()"
+                            (click)="onFilter(option)"
+                        >
+                            {{ filterLabels[option] }}
+                        </button>
+                    </li>
+                }
+            </ul>
+
+            @let shown = contacts.visible().length;
+
+            <p class="text-sm text-muted" id="shown-count">
+                Showing {{ shown }} of {{ contacts.total() }}.
+            </p>
+
+            <ul class="book-grid">
+                @for (contact of contacts.visible(); track contact.id) {
+                    <li>
+                        <app-contact-card
+                            [contact]="contact"
+                            (edit)="startEdit($event)"
+                            (remove)="onRemove($event)"
+                            (toggleFavourite)="onToggleFavourite($event)"
+                        />
+                    </li>
+                } @empty {
+                    <!-- Two empty states, told apart. "Nothing saved" and
+                         "nothing matches" are different problems with
+                         different actions - Day 29, and Week 4 showed one
+                         message for both. -->
+                    <li>
+                        <app-empty-state
+                            [message]="
+                                contacts.filtering()
+                                    ? 'No contact matches that search.'
+                                    : 'No contacts yet. Add one with the form above.'
+                            "
+                        >
+                            @if (contacts.filtering()) {
+                                <button
+                                    type="button"
+                                    class="button button--small"
+                                    id="clear-filters"
+                                    (click)="contacts.clearFilters()"
+                                >
+                                    Clear the filters
+                                </button>
+                            }
+                        </app-empty-state>
+                    </li>
+                }
+            </ul>
+        </app-panel>
+    </main>
+
+    <footer class="app-footer">
+        <p class="text-sm text-muted">
+            Week 10 build &mdash; signals, services, dependency injection and
+            typed reactive forms. Written up in
+            <code>Day 50/README.md</code>.
+        </p>
+    </footer>
+</div>
