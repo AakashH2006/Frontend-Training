@@ -1,0 +1,38 @@
+{
+  /* Day 21 - the compiler options, with a note on the ones that matter.
+
+     `strict: true` is on from the first day on purpose. Turning it on later
+     means fixing every file at once, and the errors it produces are the ones
+     worth having. */
+  "compilerOptions": {
+    /* What JavaScript to emit, and what built-ins to assume exist. */
+    "target": "ES2023",
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+
+    /* Vite compiles each file on its own and never type-checks, so `tsc` here
+       is only a checker. No output, and no emit of any kind. */
+    "noEmit": true,
+    "isolatedModules": true,
+    "verbatimModuleSyntax": true,
+
+    /* The whole family of strict checks. The two that change daily work:
+       - strictNullChecks: null and undefined stop being members of every type,
+         so anything that might be missing has to be handled.
+       - noImplicitAny: a parameter with no annotation and no inferable type is
+         an error rather than a silent `any`. */
+    "strict": true,
+
+    /* Not part of `strict`, and all three catch real mistakes. */
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": ["src"]
+}

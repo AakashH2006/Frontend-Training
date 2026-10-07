@@ -1,0 +1,17 @@
+{
+  "name": "day24-generics-classes",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Day 24 - generics, a typed repository class, and module boundaries",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "~5.9.0",
+    "vite": "^7.0.0"
+  }
+}

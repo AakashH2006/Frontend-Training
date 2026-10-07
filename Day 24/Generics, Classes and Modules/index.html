@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Day 24 | Generics, Classes and Modules</title>
+
+    <meta name="description" content="Day 24: generics and constraints, keyof, a generic Result type, a typed repository class over localStorage, class modifiers and private fields, and one-way module boundaries.">
+</head>
+<body>
+
+    <main class="page">
+        <h1>Day 24 &mdash; Generics, Classes and Modules</h1>
+
+        <p class="text-muted">
+            The last exercise day of Week 5. Two of these files are not
+            exercises &mdash; <code>result.ts</code> and
+            <code>repository.ts</code> are the real thing, and Day 25's
+            migration uses both.
+        </p>
+
+        <p class="status" id="output">Not run yet.</p>
+
+        <h2>How to run it</h2>
+
+<pre><code>npm install
+npm run dev        # then open the console (F12)
+npm run typecheck  # 0 errors, with 9 deliberate ones pinned</code></pre>
+
+        <h2>The files</h2>
+
+<pre><code>src/model.ts       carried forward from Day 23, unchanged
+src/result.ts      Result&lt;T, E&gt; - a generic discriminated union
+src/repository.ts  Repository&lt;T&gt; over localStorage
+src/generics.ts    the ten sections</code></pre>
+
+        <p>
+            The dependency direction is one-way:
+            <code>model.ts</code> and <code>result.ts</code> import nothing,
+            <code>repository.ts</code> imports <code>result.ts</code>, and
+            the exercises import all three. <code>repository.ts</code> does
+            not know a <code>Book</code> exists &mdash; it takes a type
+            parameter and a validator &mdash; which is why it could store
+            something else tomorrow without being edited.
+        </p>
+
+        <h2>What the sections cover</h2>
+
+        <ol>
+            <li>Why a generic, against <code>any</code> and
+                <code>unknown</code></li>
+            <li>Inference, and when to be explicit</li>
+            <li>Constraints with <code>extends</code></li>
+            <li><code>keyof</code> constraints &mdash;
+                <code>pluck</code> and <code>groupBy</code></li>
+            <li>A generic <code>Store&lt;S&gt;</code> class</li>
+            <li>Parameter properties, <code>private</code> against
+                <code>#</code>, <code>protected</code>,
+                <code>implements</code>, <code>this</code> returns</li>
+            <li><code>Result&lt;T, E&gt;</code> and
+                <code>safeJsonParse</code></li>
+            <li>The repository, with all five failure paths forced</li>
+            <li>Generic defaults, and when a type parameter is just
+                ceremony</li>
+            <li>Module boundaries, <code>import type</code>, and the circular
+                import I backed out of</li>
+        </ol>
+
+        <p class="text-muted">
+            Written up in <code>Day 24/notes.md</code>.
+        </p>
+    </main>
+
+    <script type="module" src="/src/main.ts"></script>
+</body>
+</html>
