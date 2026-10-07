@@ -1,0 +1,36 @@
+{
+  /* Day 26 - the Week 5 tsconfig, plus the two lines React needs.
+
+     Everything strict stays on. The only additions are `jsx` and the two
+     `allowImporting*` options, and the first of those is the interesting one. */
+  "compilerOptions": {
+    "target": "ES2023",
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+
+    /* "react-jsx" is the modern transform. It compiles <div /> to a call to
+       `_jsx` from "react/jsx-runtime", which the compiler imports on its own -
+       which is why no file this week has `import React from "react"` at the
+       top even though every file uses JSX.
+
+       The old "react" value compiled to `React.createElement`, and that is why
+       the import used to be mandatory. */
+    "jsx": "react-jsx",
+
+    "noEmit": true,
+    "isolatedModules": true,
+    "verbatimModuleSyntax": true,
+
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": ["src", "vite.config.ts"]
+}
