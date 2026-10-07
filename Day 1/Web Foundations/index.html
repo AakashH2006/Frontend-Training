@@ -12,17 +12,35 @@
         <p>Cybersecurity Undergraduate | Front-End Developer Intern</p>
     </header>
 
-    <main>
-        <section>
-            <h2>About Me</h2>
-            <p>
-                I am a cybersecurity undergraduate currently learning
-                front-end web development through a practical internship.
-            </p>
-        </section>
+<nav>
+    <a href="#about">About Me</a>
+    <a href="#learning">What I'm Learning</a>
+    <a href="#goal">My Goal</a>
+</nav>
 
-        <section>
-            <h2>What I'm Learning</h2>
+    <main>
+        <section id="about">
+    <h2>About Me</h2>
+    <p>
+        I am a cybersecurity undergraduate currently learning
+        front-end web development through a practical internship.
+    </p>
+
+    <p>
+        I am currently building my understanding of HTML,
+        CSS and JavaScript through practical exercises.
+    </p>
+</section>
+
+        <section id="learning">
+    <h2>What I'm Learning</h2>
+    <article>
+    <h3>My Front-End Learning Journey</h3>
+    <p>
+        I am currently learning HTML, CSS, JavaScript, TypeScript,
+        React, and Angular as part of my front-end development training.
+    </p>
+</article>
             <ul>
                 <li>HTML and semantic web structure</li>
                 <li>CSS and responsive design</li>
@@ -32,17 +50,47 @@
             </ul>
         </section>
 
-        <section>
-            <h2>My Goal</h2>
+        <section id="goal">
+    <h2>My Goal</h2>
             <p>
                 Build practical, accessible and responsive web applications
                 while developing a strong foundation in front-end development.
+                <p>
+    This is additional content to create enough page height
+    to demonstrate navigation between sections.
+</p>
             </p>
         </section>
     </main>
+<section id="contact">
+    <h2>Contact Me</h2>
+
+  <form>
+    <fieldset>
+        <legend>Contact Information</legend>
+
+        <label for="name">Name:</label>
+        <input type="text" id="name" required>
+
+        <label for="email">Email:</label>
+        <input type="email" id="email" required>
+
+        <label for="age">Age:</label>
+        <input type="number" id="age" min="18" max="100" required>
+
+        <label for="phone">Phone:</label>
+        <input type="tel" id="phone" pattern="[0-9]{10}" required>
+
+        <label for="message">Message:</label>
+        <textarea id="message" required></textarea>
+
+        <button type="submit">Submit</button>
+    </fieldset>
+</form>
+</section>
 
     <footer>
-        <p>Front-End Web Development Internship — Day 1</p>
+        <p>Front-End Web Development Internship</p>
     </footer>
 
 </body>
