@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Day 23 | Object Types, Aliases and Interfaces</title>
+
+    <meta name="description" content="Day 23: modelling the Open Library response and the domain it maps to, with type against interface, optional and readonly used deliberately, Record, utility types and validation at the boundaries.">
+</head>
+<body>
+
+    <main class="page">
+        <h1>Day 23 &mdash; Object Types, Aliases and Interfaces</h1>
+
+        <p class="text-muted">
+            The day the types stopped being exercises and started being a
+            model. The API's shape and the app's shape are two different
+            things related by one function, and
+            <code>src/model.ts</code> is where that lives.
+        </p>
+
+        <p class="status" id="output">Not run yet.</p>
+
+        <h2>How to run it</h2>
+
+<pre><code>npm install
+npm run dev        # then open the console (F12)
+npm run typecheck  # 0 errors, with 12 deliberate ones pinned</code></pre>
+
+        <h2>The two sets of types</h2>
+
+<pre><code>OpenLibraryDoc   what the API sends - snake_case,
+                 nearly everything optional, fields
+                 this app has no use for
+
+Book             what the app works with - camelCase,
+                 nothing optional unless the UI
+                 renders the missing case
+
+toBook()         the only crossing point</code></pre>
+
+        <p>
+            Every <code>??</code> in <code>toBook</code> is a decision about a
+            missing field. Writing the types out is what forced each one to be
+            made on purpose rather than discovered later as a blank space on a
+            card.
+        </p>
+
+        <h2>What the sections cover</h2>
+
+        <ol>
+            <li><code>type</code> against <code>interface</code>, and why
+                <code>Status</code> has to be an alias</li>
+            <li>Declaration merging, and why it argues for aliases in my own
+                code</li>
+            <li><code>extends</code> against an intersection, and the
+                <code>never</code> property</li>
+            <li>Optional properties under
+                <code>exactOptionalPropertyTypes</code></li>
+            <li><code>readonly</code>, and how shallow it is</li>
+            <li>Index signatures against <code>Record</code>, and closed
+                lookup tables</li>
+            <li>Structural typing, and branded types</li>
+            <li>The API shape against the domain shape</li>
+            <li><code>Pick</code>, <code>Omit</code>, <code>Partial</code>,
+                <code>keyof</code></li>
+            <li>Validating at the storage boundary</li>
+        </ol>
+
+        <p class="text-muted">
+            Written up in <code>Day 23/notes.md</code>. The model in
+            <code>src/model.ts</code> is reused on Day 25.
+        </p>
+    </main>
+
+    <script type="module" src="/src/main.ts"></script>
+</body>
+</html>
