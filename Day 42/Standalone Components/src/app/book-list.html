@@ -1,0 +1,15 @@
+@if (books().length === 0) {
+    <app-empty-state [message]="emptyMessage()">
+        <!-- Projected into EmptyState's <ng-content>. This markup is compiled
+             in BookList's context, not EmptyState's - which is the thing about
+             content projection that is genuinely different from a React
+             child. -->
+        <p class="text-sm">Nothing to show here yet.</p>
+    </app-empty-state>
+} @else {
+    <ul class="book-grid">
+        @for (book of books(); track book.id) {
+            <li><app-book-card [book]="book" /></li>
+        }
+    </ul>
+}

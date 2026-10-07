@@ -1,0 +1,55 @@
+<div class="page">
+    <header class="app-header">
+        <h1>Reading List</h1>
+        <p class="text-muted">
+            Day 42 &mdash; six standalone components, composed. Content
+            projection with <code>ng-content</code>, a named slot, and
+            <code>:host</code>.
+        </p>
+    </header>
+
+    <main id="main">
+        <app-panel heading="Summary" headingId="summary">
+            <ul class="summary" aria-label="Status summary">
+                <!-- Projected into Panel's default slot. These <app-stat>
+                     elements are compiled in App's context, which is why they
+                     can read `total` and `counts` - fields on App, invisible
+                     to Panel. -->
+                <app-stat label="On the list" [value]="total()" />
+
+                @for (status of statuses; track status) {
+                    <app-stat [label]="statusLabels[status]" [value]="counts()[status]" />
+                }
+            </ul>
+        </app-panel>
+
+        <app-panel heading="Your list" headingId="saved">
+            <!-- The named slot. `panel-actions` is a bare attribute used
+                 purely as a selector hook - Panel's
+                 `<ng-content select="[panel-actions]">` claims it, and it
+                 lands beside the heading rather than in the body.
+
+                 No prop needed on Panel for this, which is the difference from
+                 Day 27's `actions` prop. -->
+            <button panel-actions type="button" class="button button--quiet button--small">
+                Clear
+            </button>
+
+            <app-book-list [books]="books()" />
+        </app-panel>
+
+        <app-panel heading="The empty case" headingId="empty">
+            <!-- The empty branch, on the page rather than only in the code.
+                 Day 18: a path that is never exercised is a path that does not
+                 work. -->
+            <app-book-list [books]="noBooks()" emptyMessage="This list is deliberately empty." />
+        </app-panel>
+    </main>
+
+    <footer class="app-footer">
+        <p class="text-sm text-muted">
+            Week 9, Day 42 &mdash; selectors, templates, scoped styles and
+            content projection.
+        </p>
+    </footer>
+</div>
