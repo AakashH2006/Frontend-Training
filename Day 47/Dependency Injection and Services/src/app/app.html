@@ -1,0 +1,141 @@
+<div class="page">
+    <header class="app-header">
+        <h1>Reading List</h1>
+        <p class="text-muted">
+            Day 47 &mdash; the state moved into a service. This component holds
+            no signals and no handlers beyond four one-line forwards.
+        </p>
+
+        <!-- Reading the storage service straight from the template. -->
+        <p
+            class="status text-sm"
+            [class.status--error]="storage.problem() !== null || !storage.available"
+            role="status"
+            id="storage-note"
+        >
+            @if (storage.problem(); as problem) {
+                {{ problem }}
+            } @else if (storage.available) {
+                Saved in this browser. The list will still be here after a reload.
+            } @else {
+                This browser is blocking local storage, so the list will be lost on reload.
+            }
+        </p>
+
+        <!-- `@if (x; as y)` binds the narrowed value to a name, which is the
+             idiomatic way to avoid calling a signal twice and to get the
+             non-null type. The alternative is a @let plus a nested @if. -->
+    </header>
+
+    <main id="main">
+        <app-panel heading="Your list" headingId="saved">
+            <!-- Calling the service directly from the template. No wrapper
+                 method, because there is nothing to add. -->
+            <button
+                panel-actions
+                type="button"
+                class="button button--quiet button--small"
+                id="reset"
+                (click)="list.reset()"
+            >
+                Reset
+            </button>
+
+            <ul class="summary" aria-label="Status summary">
+                <app-stat label="On the list" [value]="list.total()" />
+                @for (status of statuses; track status) {
+                    <app-stat [label]="statusLabels[status]" [value]="list.counts()[status]" />
+                }
+            </ul>
+
+            <!-- `[query]` + `(queryChange)` rather than `[(query)]`.
+
+                 This changed today and the reason is worth recording: the
+                 service exposes `query` through `.asReadonly()`, and `[(x)]`
+                 needs a WRITABLE signal to assign back into. So the two-way
+                 sugar stops being available the moment the state moves
+                 somewhere that protects it.
+
+                 That is the right trade. FilterBar still declares a `model()`,
+                 and a model's generated `xChange` output is bindable on its
+                 own - so nothing in the child changed. -->
+            <app-filter-bar
+                [query]="list.query()"
+                (queryChange)="onQueryChange($event)"
+                [filter]="list.filter()"
+                (filterChange)="onFilterChange($event)"
+                [sort]="list.sort()"
+                (sortChange)="onSortChange($event)"
+                [shown]="list.visible().length"
+                [total]="list.total()"
+            />
+
+            @if (list.visible().length === 0) {
+                <app-empty-state
+                    [message]="
+                        list.filtering()
+                            ? 'No book matches that filter.'
+                            : 'Nothing on the list. Press Reset to put the books back.'
+                    "
+                >
+                    @if (list.filtering()) {
+                        <button
+                            type="button"
+                            class="button button--small"
+                            id="clear-filters"
+                            (click)="list.clearFilters()"
+                        >
+                            Clear the filters
+                        </button>
+                    }
+                </app-empty-state>
+            } @else {
+                <ul class="book-grid">
+                    @for (book of list.visible(); track book.id; let i = $index) {
+                        <li>
+                            <app-book-card
+                                [book]="book"
+                                [position]="i + 1"
+                                (statusChange)="onStatusChange(book.id, $event)"
+                                (remove)="list.remove($event)"
+                            />
+                        </li>
+                    }
+                </ul>
+            }
+
+            <p class="text-sm text-muted" id="options">
+                Injected options: seedWhenEmpty =
+                {{ options.seedWhenEmpty }}, maxBooks = {{ options.maxBooks }}
+            </p>
+        </app-panel>
+
+        <app-panel heading="Injection scope" headingId="scope">
+            <p class="text-sm text-muted">
+                Three counters, one class. The first two inject the root
+                instance provided on <code>App</code>; the third is wrapped in a
+                component with its own <code>providers</code>, so it gets a
+                separate instance. Increment any of them and watch which
+                numbers move together.
+            </p>
+
+            <app-counter label="Shared A" />
+            <app-counter label="Shared B" />
+            <app-counter-own label="Its own injector" />
+
+            <p class="text-sm text-muted">
+                The instance ids are shown so the sharing is visible rather than
+                inferred from the counts. Two identical ids and one different
+                one is the whole lesson.
+            </p>
+        </app-panel>
+    </main>
+
+    <footer class="app-footer">
+        <p class="text-sm text-muted">
+            Week 10, Day 47 &mdash; <code>&#64;Injectable</code>,
+            <code>inject()</code>, <code>InjectionToken</code> and injection
+            scope.
+        </p>
+    </footer>
+</div>

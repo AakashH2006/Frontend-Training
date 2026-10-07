@@ -1,0 +1,55 @@
+<article class="book-card" [class]="'book-card--' + book().status">
+    <h3 class="book-card__title">
+        @if (position() > 0) {
+            <span class="text-sm text-muted">#{{ position() }}</span>
+        }
+        {{ book().title }}
+    </h3>
+
+    <p class="book-card__meta">{{ authorLine() }}</p>
+    <p class="book-card__meta">{{ yearLine() }}</p>
+
+    @if (book().note !== undefined) {
+        <p class="book-card__note">{{ book().note }}</p>
+    }
+
+    <p class="book-card__status">
+        <app-badge [status]="book().status" />
+    </p>
+
+    @if (showControls()) {
+        <div class="form-actions">
+            <span class="field field--inline">
+                <label class="text-sm" [attr.for]="'status-' + book().id">Status</label>
+                <select
+                    [attr.id]="'status-' + book().id"
+                    [value]="book().status"
+                    (change)="onStatusChange($event)"
+                >
+                    @for (status of statuses; track status) {
+                        <option [value]="status">{{ statusLabels[status] }}</option>
+                    }
+                </select>
+            </span>
+
+            <!-- `emit` called directly from the template. That is fine for a
+                 payload the template already has; anything needing a guard or
+                 a transform goes through a method, like onStatusChange. -->
+            <button
+                type="button"
+                class="button button--quiet button--small"
+                (click)="edit.emit(book())"
+            >
+                Edit
+            </button>
+
+            <button
+                type="button"
+                class="button button--danger button--small"
+                (click)="remove.emit(book().id)"
+            >
+                Remove
+            </button>
+        </div>
+    }
+</article>
