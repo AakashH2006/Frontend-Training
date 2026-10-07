@@ -1,0 +1,88 @@
+<div class="page">
+    <header class="app-header">
+        <h1>Reading List</h1>
+        <p class="text-muted">
+            Day 46 &mdash; four signals, six computeds and one effect. The tab
+            title follows the list, which is the only thing on this page that is
+            outside the reactive graph.
+        </p>
+        <p class="status text-sm" id="summary" role="status">{{ summary() }}</p>
+    </header>
+
+    <main id="main">
+        <app-panel heading="Your list" headingId="saved">
+            <button
+                panel-actions
+                type="button"
+                class="button button--quiet button--small"
+                id="reset"
+                (click)="reset()"
+            >
+                Reset
+            </button>
+
+            <ul class="summary" aria-label="Status summary">
+                <app-stat label="On the list" [value]="total()" />
+                @for (status of statuses; track status) {
+                    <app-stat [label]="statusLabels[status]" [value]="counts()[status]" />
+                }
+            </ul>
+
+            <app-filter-bar
+                [(query)]="query"
+                [filter]="filter()"
+                (filterChange)="onFilterChange($event)"
+                [sort]="sort()"
+                (sortChange)="onSortChange($event)"
+                [shown]="visible().length"
+                [total]="total()"
+            />
+
+            @if (visible().length === 0) {
+                <app-empty-state
+                    [message]="
+                        filtering()
+                            ? 'No book matches that filter.'
+                            : 'Nothing on the list. Press Reset to put the books back.'
+                    "
+                >
+                    @if (filtering()) {
+                        <button
+                            type="button"
+                            class="button button--small"
+                            id="clear-filters"
+                            (click)="clearFilters()"
+                        >
+                            Clear the filters
+                        </button>
+                    }
+                </app-empty-state>
+            } @else {
+                <ul class="book-grid">
+                    @for (book of visible(); track book.id; let i = $index) {
+                        <li>
+                            <app-book-card
+                                [book]="book"
+                                [position]="i + 1"
+                                (statusChange)="onStatusChange(book.id, $event)"
+                                (remove)="onRemove($event)"
+                            />
+                        </li>
+                    }
+                </ul>
+            }
+        </app-panel>
+
+        <app-panel heading="What signals actually do" headingId="lab">
+            <app-signals-lab />
+        </app-panel>
+    </main>
+
+    <footer class="app-footer">
+        <p class="text-sm text-muted">
+            Week 10, Day 46 &mdash; <code>signal</code>, <code>computed</code>,
+            <code>effect</code>, <code>untracked</code> and
+            <code>linkedSignal</code>.
+        </p>
+    </footer>
+</div>

@@ -1,0 +1,125 @@
+<dl class="notes-list">
+    <!-- ================= 1. lazy and cached ================= -->
+    <dt>1. <code>computed</code> is lazy and cached</dt>
+    <dd>
+        <p class="text-sm">a = {{ a() }}, b = {{ b() }}, product = {{ product() }}</p>
+        <p class="text-sm" id="runs">The computation has run {{ runsShown() }} {{ runsShown() === 1 ? 'time' : 'times' }}.</p>
+
+        <div class="form-actions">
+            <button type="button" class="button button--small" id="bump-a" (click)="bumpA()">a + 1</button>
+            <button type="button" class="button button--small" id="bump-b" (click)="bumpB()">b + 1</button>
+            <button type="button" class="button button--quiet button--small" id="read-product" (click)="readProduct()">
+                Read it three times
+            </button>
+        </div>
+
+        <p class="text-sm text-muted">
+            The template reads <code>product()</code> once per render and the
+            button reads it three more times, and the run count does not move.
+            A <code>computed</code> recalculates only when one of the signals it
+            read has changed; every read in between returns the cached value.
+        </p>
+    </dd>
+
+    <!-- ================= 2. value equality ================= -->
+    <dt>2. A <code>computed</code> notifies only when its value changes</dt>
+    <dd>
+        <p class="text-sm">count = {{ count() }}, isEven = {{ isEven() }}</p>
+        <p class="text-sm" id="even-changes">
+            The effect watching <code>isEven</code> has run
+            {{ evenChangesShown() }} {{ evenChangesShown() === 1 ? 'time' : 'times' }}.
+        </p>
+
+        <div class="form-actions">
+            <button type="button" class="button button--small" id="count-1" (click)="bumpCount(1)">count + 1</button>
+            <button type="button" class="button button--small" id="count-2" (click)="bumpCount(2)">count + 2</button>
+        </div>
+
+        <p class="text-sm text-muted">
+            <code>+2</code> changes <code>count</code> and leaves
+            <code>isEven</code> alone, so nothing downstream re-runs.
+            <code>+1</code> flips it and the effect fires. The graph propagates
+            <em>values</em>, not invalidations &mdash; which is the thing
+            <code>useMemo</code> does not do, because its consumers re-render
+            whenever the component does.
+        </p>
+    </dd>
+
+    <!-- ================= 3. untracked ================= -->
+    <dt>3. <code>untracked</code></dt>
+    <dd>
+        <p class="text-sm" id="reads-one">readsOne = {{ readsOne() }}</p>
+
+        <div class="form-actions">
+            <button type="button" class="button button--small" id="set-tracked" (click)="setTracked()">
+                Change the tracked one
+            </button>
+            <button type="button" class="button button--small" id="set-ignored" (click)="setIgnored()">
+                Change the untracked one
+            </button>
+        </div>
+
+        <p class="text-sm text-muted">
+            <code>readsOne</code> reads both signals but only depends on the
+            first. Changing the untracked one does not recompute it, so the
+            displayed value goes stale on purpose &mdash; which is the point:
+            <code>untracked</code> is for reading something you do not want to
+            react to.
+        </p>
+    </dd>
+
+    <!-- ================= 4. linkedSignal ================= -->
+    <dt>4. <code>linkedSignal</code> &mdash; writable and derived</dt>
+    <dd>
+        <p class="text-sm" id="linked">
+            options = [{{ statuses().join(', ') }}] &middot; selected =
+            <strong>{{ selected() }}</strong>
+        </p>
+
+        <div class="form-actions">
+            <button type="button" class="button button--small" id="pick-last" (click)="pickLast()">
+                Select the last option
+            </button>
+            <button type="button" class="button button--small" id="change-options" (click)="changeOptions()">
+                Change the options
+            </button>
+        </div>
+
+        <p class="text-sm text-muted">
+            Select the last option, then change the options: the selection
+            resets to the first of the new list. Writable like a
+            <code>signal</code>, derived like a <code>computed</code>.
+        </p>
+
+        <p class="text-sm text-muted">
+            This is the shape that needed a <code>useState</code> plus a
+            <code>useEffect</code> in React &mdash; a selection that resets when
+            its options change &mdash; which is the pattern the React docs warn
+            about and Day 34 removed with a <code>key</code>. Here it is one
+            declaration.
+        </p>
+    </dd>
+
+    <!-- ================= 5. the log ================= -->
+    <dt>5. What the effects saw</dt>
+    <dd>
+        <div class="form-actions">
+            <button type="button" class="button button--quiet button--small" id="clear-log" (click)="clearLog()">
+                Clear
+            </button>
+        </div>
+
+        @if (log().length === 0) {
+            <p class="text-sm text-muted">Press a button above.</p>
+        } @else {
+            <ol class="group__list" id="signal-log">
+                <!-- `track $index` is correct here: the log is append-only,
+                     so nothing reorders and nothing is removed from the
+                     middle. Day 44's exception. -->
+                @for (line of log(); track $index) {
+                    <li class="text-sm">{{ line }}</li>
+                }
+            </ol>
+        }
+    </dd>
+</dl>
