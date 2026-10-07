@@ -1,0 +1,79 @@
+# Day 39 - build, check and deploy to GitHub Pages.
+#
+# The order of the steps is the point: typecheck, test, then build. A deploy
+# that ships a failing test suite is worse than no deploy, and `npm run build`
+# alone would not catch it - Vite does not type-check and does not run tests.
+
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  # So it can be run by hand from the Actions tab without pushing.
+  workflow_dispatch:
+
+# The permissions GitHub Pages needs. Without `id-token: write` the deploy step
+# fails with an authentication error that does not mention permissions.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One deploy at a time. `cancel-in-progress: false` because cancelling a
+# half-finished deploy can leave the site in a broken state - better to queue.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    # The project lives in a subdirectory of this repo, so every step runs
+    # from there rather than from the repository root.
+    defaults:
+      run:
+        working-directory: "Day 40/Reading List Capstone"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          # Caches ~/.npm between runs. The cache key comes from the lockfile,
+          # so it is invalidated exactly when the dependencies change.
+          cache: npm
+          cache-dependency-path: "Day 40/Reading List Capstone/package-lock.json"
+
+      # `npm ci`, not `npm install`. It installs exactly what the lockfile
+      # says and fails if package.json and the lockfile disagree - which is
+      # what a build should do, rather than quietly resolving a new version.
+      - run: npm ci
+
+      - run: npm run typecheck
+
+      - run: npm test
+
+      - run: npm run build
+        env:
+          # The repository name, so asset URLs resolve under
+          # https://<user>.github.io/<repo>/. Taken from the context rather
+          # than hard-coded, so a renamed or forked repo still builds.
+          VITE_BASE: "/${{ github.event.repository.name }}/"
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: "Day 40/Reading List Capstone/dist"
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

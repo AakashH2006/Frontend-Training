@@ -1,0 +1,25 @@
+# Netlify, the explicit version. `public/_redirects` does the same thing; this
+# is here because a config file is easier to find than a file in public/.
+
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# The assets are content-hashed, so a filename only changes when the contents
+# do. That makes them safe to cache for a year. index.html is NOT hashed and
+# must never be cached, or a returning visitor keeps loading an old page that
+# points at assets which no longer exist.
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "no-cache"

@@ -1,0 +1,10 @@
+# Netlify. One line, and it is the whole SPA refresh fix.
+#
+# BrowserRouter uses real paths, so /list is a URL the server is asked for -
+# and there is no file called "list". Without this rule the host answers 404
+# on every refresh and every shared deep link, while clicking around inside
+# the app works perfectly. That asymmetry is what makes it confusing.
+#
+# 200, not 301: serve index.html AT that URL rather than redirecting to "/",
+# so the router still sees /list and renders the right route.
+/*    /index.html   200
