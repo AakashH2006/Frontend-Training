@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Day 22 | Functions and Narrowing</title>
+
+    <meta name="description" content="Day 22: typing parameters, returns and callbacks, then narrowing unions with typeof, truthiness, equality, in, instanceof, discriminated unions and type predicates.">
+</head>
+<body>
+
+    <main class="page">
+        <h1>Day 22 &mdash; Functions and Narrowing</h1>
+
+        <p class="text-muted">
+            Two halves. Typing the things functions are made of, then narrowing
+            &mdash; which is how a union stops being a locked box and turns into
+            something usable.
+        </p>
+
+        <p class="status" id="output">Not run yet.</p>
+
+        <h2>How to run it</h2>
+
+<pre><code>npm install
+npm run dev        # then open the console (F12)
+npm run typecheck  # 0 errors, with 7 deliberate ones pinned</code></pre>
+
+        <h2>What the sections cover</h2>
+
+        <ol>
+            <li>Parameters and returns, and the bug an inferred return type
+                allows</li>
+            <li>Optional parameters against defaults, and why
+                <code>label?: string</code> is not
+                <code>label: string | undefined</code></li>
+            <li>Rest parameters, and why a spread needs a tuple</li>
+            <li>Function types, contextual typing, and the
+                <code>map(parseInt)</code> trap</li>
+            <li><code>void</code>, and why it is not <code>undefined</code></li>
+            <li><code>typeof</code> narrowing, and
+                <code>typeof null === "object"</code></li>
+            <li>Truthiness narrowing, and where <code>0</code> and
+                <code>""</code> break it</li>
+            <li>Equality narrowing, and the one good use of
+                <code>!= null</code></li>
+            <li>The <code>in</code> operator</li>
+            <li><code>instanceof</code>, and why <code>catch</code> gives
+                <code>unknown</code></li>
+            <li>Discriminated unions, and exhaustiveness with
+                <code>never</code></li>
+            <li>Type predicates and assertion functions</li>
+        </ol>
+
+        <h2>The one that mattered</h2>
+
+        <p>
+            Section 11. Week 4's store had a <code>phase</code> string and four
+            independent fields, so <code>phase: "error"</code> alongside a full
+            <code>results</code> array was a state the code could construct.
+            As a discriminated union it is not constructible, and the
+            <code>never</code> branch means adding a fifth state breaks the
+            build until every branch handles it.
+        </p>
+
+        <p class="text-muted">
+            Written up in <code>Day 22/notes.md</code>.
+        </p>
+    </main>
+
+    <script type="module" src="/src/main.ts"></script>
+</body>
+</html>
