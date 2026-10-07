@@ -1,0 +1,157 @@
+<!-- Day 49 - the template.
+
+     `[formGroup]` connects the form to the markup, and each `formControlName`
+     names a control. There is no `[value]` and no `(input)` anywhere: the form
+     owns the value and the directives do the binding.
+
+     That is the difference from the React version, where every field had both
+     halves written out. Fewer lines, and the cost is that the connection is by
+     STRING - `formControlName="titel"` compiles and throws at runtime. Typed
+     forms type the class and not the template, which is the one gap left. -->
+
+<form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+    <!-- The error summary from Day 38, which is the thing I was most glad to
+         bring across. Focusable, listing every problem, each linked to its
+         field. -->
+    @if (submitted() && form.invalid) {
+        <div class="error-summary" tabindex="-1" role="alert" id="summary">
+            <h3 class="error-summary__title">
+                @let count = problemCount();
+                There {{ count === 1 ? 'is 1 problem' : 'are ' + count + ' problems' }} with this form
+            </h3>
+            <ul class="error-summary__list">
+                @for (name of fieldOrder; track name) {
+                    @if (showError(name)) {
+                        <li><a [attr.href]="'#' + name">{{ errorFor(name) }}</a></li>
+                    }
+                }
+                @if (groupError) {
+                    <li>{{ groupError }}</li>
+                }
+            </ul>
+        </div>
+    }
+
+    <div class="field">
+        <label for="title">Title</label>
+        <input
+            id="title"
+            formControlName="title"
+            autocomplete="off"
+            [attr.aria-invalid]="showError('title')"
+            [attr.aria-describedby]="showError('title') ? 'title-error' : null"
+        />
+        @if (showError('title')) {
+            <p class="field-error" id="title-error">{{ errorFor('title') }}</p>
+        }
+    </div>
+
+    <div class="toolbar">
+        <div class="field">
+            <label for="authors">Authors</label>
+            <input id="authors" formControlName="authors" placeholder="Comma separated" autocomplete="off" />
+        </div>
+
+        <div class="field">
+            <label for="year">Year</label>
+            <!-- NOT type="number", and this cost me a debugging session.
+
+                 Angular picks a value accessor from the input's type, and
+                 `type="number"` selects NumberValueAccessor - which writes a
+                 NUMBER into the control. The control is declared
+                 FormControl<string>, so `raw.year.trim()` threw
+                 "t.year.trim is not a function" at submit.
+
+                 The form reported itself VALID and the submit silently did
+                 nothing, because the error was thrown inside the handler. A
+                 typed form types the class; it cannot type what the DOM hands
+                 back.
+
+                 `inputmode="numeric"` gives the numeric keyboard on a phone
+                 without changing the accessor, and `yearRange` was already
+                 doing the actual validation - which is Day 29's conclusion
+                 that type="number" is a keyboard hint rather than a
+                 validator. -->
+            <input
+                id="year"
+                inputmode="numeric"
+                formControlName="year"
+                [attr.aria-invalid]="showError('year')"
+                [attr.aria-describedby]="showError('year') ? 'year-error' : null"
+            />
+            @if (showError('year')) {
+                <p class="field-error" id="year-error">{{ errorFor('year') }}</p>
+            }
+        </div>
+
+        <div class="field">
+            <label for="status">Status</label>
+            <select id="status" formControlName="status">
+                @for (status of statuses; track status) {
+                    <option [value]="status">{{ statusLabels[status] }}</option>
+                }
+            </select>
+        </div>
+    </div>
+
+    <div class="field">
+        <label for="note">Note</label>
+        <textarea
+            id="note"
+            rows="2"
+            formControlName="note"
+            [attr.aria-invalid]="showError('note')"
+            [attr.aria-describedby]="showError('note') ? 'note-error' : null"
+        ></textarea>
+        <p class="text-sm text-muted" id="note-count">{{ noteLength() }} / 300</p>
+        @if (showError('note')) {
+            <p class="field-error" id="note-error">{{ errorFor('note') }}</p>
+        }
+    </div>
+
+    <!-- The group-level error. It belongs to the form rather than to a field,
+         so it is rendered outside any .field - which is also why the summary
+         lists it without a link. -->
+    @if (groupError) {
+        <p class="field-error" id="group-error">{{ groupError }}</p>
+    }
+
+    <div class="form-actions">
+        <!-- NOT [disabled]="form.invalid".
+
+             A disabled submit button is the thing that looks helpful and is
+             not: it gives no reason, it cannot be focused to find out why, and
+             on a form with a hidden error it is simply broken. Submitting and
+             being told what is wrong is better than being unable to submit and
+             not knowing. -->
+        <button type="submit" class="button" id="submit">{{ submitLabel() }}</button>
+
+        @if (initial() !== undefined) {
+            <button type="button" class="button button--quiet" id="cancel" (click)="onCancel()">
+                Cancel
+            </button>
+        } @else {
+            <button type="button" class="button button--quiet" id="reset-form" (click)="reset()">
+                Clear
+            </button>
+        }
+    </div>
+
+    <p class="status text-sm" role="status" id="form-status">
+        @if (submitted() && form.invalid) {
+            {{ problemCount() }} {{ problemCount() === 1 ? 'problem' : 'problems' }} to fix.
+        } @else {
+            Title is required. Everything else is optional.
+        }
+    </p>
+
+    <!-- The form's own state, on the page. Reactive forms track four flags per
+         control and I wanted to watch them rather than read about them. -->
+    <p class="text-sm text-muted" id="form-flags">
+        form: {{ form.valid ? 'valid' : 'invalid' }} &middot;
+        {{ form.touched ? 'touched' : 'untouched' }} &middot;
+        {{ form.dirty ? 'dirty' : 'pristine' }}
+        &middot; title: {{ form.controls.title.valid ? 'valid' : 'invalid' }},
+        {{ form.controls.title.touched ? 'touched' : 'untouched' }}
+    </p>
+</form>

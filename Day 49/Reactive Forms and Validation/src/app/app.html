@@ -1,0 +1,100 @@
+<div class="page">
+    <header class="app-header">
+        <h1>Reading List</h1>
+        <p class="text-muted">
+            Day 49 &mdash; a typed reactive form: <code>FormGroup</code>,
+            <code>FormControl</code>, four validators and an error summary.
+        </p>
+        <app-notice-bar />
+    </header>
+
+    <main id="main">
+        <app-panel
+            [heading]="editing() ? 'Editing &quot;' + editing()!.title + '&quot;' : 'Add a book'"
+            headingId="form"
+        >
+            <!-- One form component for both cases. `initial` being present is
+                 what makes Cancel appear instead of Clear - Day 30's "no mode
+                 prop" decision, third framework. -->
+            <app-book-form
+                [existing]="list.books()"
+                [initial]="editing()"
+                [submitLabel]="editing() ? 'Save changes' : 'Add to list'"
+                (save)="onSave($event)"
+                (cancel)="cancelEdit()"
+            />
+        </app-panel>
+
+        <app-panel heading="Your list" headingId="saved">
+            <button
+                panel-actions
+                type="button"
+                class="button button--quiet button--small"
+                id="reset"
+                (click)="list.reset()"
+            >
+                Reset
+            </button>
+
+            <ul class="summary" aria-label="Status summary">
+                <app-stat label="On the list" [value]="list.total()" />
+                @for (status of statuses; track status) {
+                    <app-stat [label]="statusLabels[status]" [value]="list.counts()[status]" />
+                }
+            </ul>
+
+            <app-filter-bar
+                [query]="list.query()"
+                (queryChange)="onQueryChange($event)"
+                [filter]="list.filter()"
+                (filterChange)="onFilterChange($event)"
+                [sort]="list.sort()"
+                (sortChange)="onSortChange($event)"
+                [shown]="list.visible().length"
+                [total]="list.total()"
+            />
+
+            @if (list.visible().length === 0) {
+                <app-empty-state
+                    [message]="
+                        list.filtering()
+                            ? 'No book matches that filter.'
+                            : 'Nothing on the list. Add one with the form above.'
+                    "
+                >
+                    @if (list.filtering()) {
+                        <button
+                            type="button"
+                            class="button button--small"
+                            id="clear-filters"
+                            (click)="list.clearFilters()"
+                        >
+                            Clear the filters
+                        </button>
+                    }
+                </app-empty-state>
+            } @else {
+                <ul class="book-grid">
+                    @for (book of list.visible(); track book.id; let i = $index) {
+                        <li>
+                            <app-book-card
+                                [book]="book"
+                                [position]="i + 1"
+                                (statusChange)="onStatusChange(book.id, $event)"
+                                (edit)="startEdit($event)"
+                                (remove)="onRemove($event)"
+                            />
+                        </li>
+                    }
+                </ul>
+            }
+        </app-panel>
+    </main>
+
+    <footer class="app-footer">
+        <p class="text-sm text-muted">
+            Week 10, Day 49 &mdash; typed reactive forms, custom and cross-field
+            validators, and an accessible error summary.
+        </p>
+    </footer>
+</div>

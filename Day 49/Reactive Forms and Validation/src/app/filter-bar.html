@@ -1,0 +1,41 @@
+<div class="toolbar">
+    <div class="field">
+        <label for="list-query">Filter your list</label>
+        <input
+            id="list-query"
+            type="search"
+            placeholder="title or author"
+            autocomplete="off"
+            [value]="query()"
+            (input)="onQuery($event)"
+        />
+    </div>
+
+    <div class="field">
+        <label for="list-sort">Sort by</label>
+        <select id="list-sort" [value]="sort()" (change)="onSort($event)">
+            @for (option of sorts; track option) {
+                <option [value]="option">{{ sortLabels[option] }}</option>
+            }
+        </select>
+    </div>
+</div>
+
+<ul class="filters">
+    @for (option of filters; track option) {
+        <li>
+            <button
+                type="button"
+                class="button button--quiet button--small filter"
+                [attr.aria-pressed]="option === filter()"
+                (click)="filterChange.emit(option)"
+            >
+                {{ filterLabels[option] }}
+            </button>
+        </li>
+    }
+</ul>
+
+<p class="text-sm text-muted" id="shown-count">
+    Showing {{ shown() }} of {{ total() }}.
+</p>
