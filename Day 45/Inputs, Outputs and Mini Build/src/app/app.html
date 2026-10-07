@@ -1,0 +1,127 @@
+<div class="page">
+    <header class="app-header">
+        <h1>Reading List</h1>
+        <p class="text-muted">
+            Day 45 &mdash; the Week 9 build. Typed <code>input()</code> and
+            <code>output()</code>, a <code>model()</code> for two-way binding,
+            and a parent that owns the state while every child is a function of
+            its inputs.
+        </p>
+    </header>
+
+    <main id="main">
+        <app-panel heading="Your list" headingId="saved">
+            <button
+                panel-actions
+                type="button"
+                class="button button--quiet button--small"
+                id="reset"
+                (click)="reset()"
+            >
+                Reset
+            </button>
+
+            <ul class="summary" aria-label="Status summary">
+                <app-stat label="On the list" [value]="total()" />
+                @for (status of statuses; track status) {
+                    <app-stat [label]="statusLabels[status]" [value]="counts()[status]" />
+                }
+            </ul>
+
+            <!-- `[(query)]` is the two-way binding onto FilterBar's model().
+                 There is no (queryChange) handler anywhere, because the model
+                 writes the parent's signal directly.
+
+                 `[filter]` + `(filterChange)` is the same thing written out,
+                 and it is written out on purpose: the parent does more than
+                 store the filter, so it wants to be the one deciding. -->
+            <app-filter-bar
+                [(query)]="query"
+                [filter]="filter()"
+                (filterChange)="onFilterChange($event)"
+                [sort]="sort()"
+                (sortChange)="onSortChange($event)"
+                [shown]="visible().length"
+                [total]="total()"
+            />
+
+            @if (visible().length === 0) {
+                <app-empty-state
+                    [message]="
+                        filtering()
+                            ? 'No book matches that filter.'
+                            : 'Nothing on the list. Press Reset to put the books back.'
+                    "
+                >
+                    @if (filtering()) {
+                        <button
+                            type="button"
+                            class="button button--small"
+                            id="clear-filters"
+                            (click)="clearFilters()"
+                        >
+                            Clear the filters
+                        </button>
+                    }
+                </app-empty-state>
+            } @else {
+                <ul class="book-grid">
+                    @for (book of visible(); track book.id; let i = $index) {
+                        <li>
+                            <!-- Three outputs, each with a typed $event.
+
+                                 `$event` on an output is the emitted payload,
+                                 not a DOM event - so it is a `Status` here, a
+                                 `string` on remove and a `Book` on edit.
+                                 strictTemplates checks each one against the
+                                 handler's signature.
+
+                                 `position` is the transform input: the value
+                                 is a number here, and a static
+                                 position="3" would also arrive as a number. -->
+                            <app-book-card
+                                [book]="book"
+                                [position]="i + 1"
+                                (statusChange)="onStatusChange(book.id, $event)"
+                                (remove)="onRemove($event)"
+                                (edit)="onEdit($event)"
+                            />
+                        </li>
+                    }
+                </ul>
+            }
+
+            <p class="status text-sm" id="last-event" role="status">
+                Last event: {{ lastEvent() }}
+            </p>
+        </app-panel>
+
+        <app-panel heading="The same card, without controls" headingId="readonly">
+            <p class="text-sm text-muted">
+                <code>showControls</code> is an optional input with a default of
+                <code>true</code>. Setting it to <code>false</code> gives back
+                Day 44's display-only card from the same component &mdash; which
+                is the argument for a default over a required input.
+            </p>
+
+            <ul class="book-grid">
+                @for (book of books().slice(0, 2); track book.id) {
+                    <!-- `position="7"` as a STATIC attribute, so it is the
+                         string "7" in the template and a number in the class.
+                         That is the input transform, and without it the
+                         `position() > 0` check in the card would be comparing
+                         a string. -->
+                    <li><app-book-card [book]="book" [showControls]="false" position="7" /></li>
+                }
+            </ul>
+        </app-panel>
+    </main>
+
+    <footer class="app-footer">
+        <p class="text-sm text-muted">
+            Week 9 build &mdash; standalone components, bindings, control flow and
+            typed component communication. Written up in
+            <code>Day 45/README.md</code>.
+        </p>
+    </footer>
+</div>
