@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Day 25 | Reading List, in TypeScript</title>
+
+    <meta name="description" content="Day 25: the Week 4 Reading List migrated to TypeScript - typed API and storage boundaries, and the request phase as a discriminated union.">
+</head>
+<body>
+
+    <!-- The first thing in the tab order, and visible only when focused.
+         Keyboard users get past the header without tabbing through it. -->
+    <a class="skip-link" href="#main">Skip to the main content</a>
+
+    <div class="page">
+
+        <header class="app-header">
+            <h1>Reading List Dashboard</h1>
+            <p class="text-muted">
+                Day 25 &mdash; the Week 5 build. The same app as Day 20, in TypeScript. Search
+                <a href="https://openlibrary.org/developers/api">Open Library</a>
+                live, save what you want to read, and track it. The list is kept
+                in this browser, so it survives a reload.
+            </p>
+            <p class="text-sm text-muted">
+                Press <kbd>/</kbd> to jump to the search box.
+            </p>
+            <p class="status text-sm" id="storage-note" role="status"></p>
+        </header>
+
+        <main id="main">
+
+            <section class="panel" aria-labelledby="search-heading">
+                <h2 id="search-heading">Search</h2>
+
+                <form id="search-form" class="expense-form" novalidate>
+                    <div class="toolbar">
+                        <div class="field">
+                            <label for="query">Title, author or subject</label>
+                            <input type="search" id="query" name="query"
+                                   autocomplete="off"
+                                   placeholder="dune, ursula le guin, cryptography">
+                        </div>
+                        <button class="button" type="submit">Search</button>
+                    </div>
+                </form>
+
+                <!-- role="status" is an aria-live region: the request state is
+                     announced without stealing focus. -->
+                <p class="status" id="status" role="status"></p>
+
+                <div id="results"></div>
+            </section>
+
+            <section class="panel" aria-labelledby="saved-heading">
+                <h2 id="saved-heading">Your list</h2>
+
+                <ul class="summary" id="summary" hidden></ul>
+
+                <div class="toolbar">
+                    <div class="field">
+                        <label for="saved-search">Filter your list</label>
+                        <input type="search" id="saved-search" autocomplete="off"
+                               placeholder="title or author">
+                    </div>
+
+                    <div class="field">
+                        <label for="sort">Sort by</label>
+                        <select id="sort" class="status-select">
+                            <option value="added">Recently added</option>
+                            <option value="title">Title</option>
+                            <option value="author">Author</option>
+                            <option value="year">Year published</option>
+                        </select>
+                    </div>
+                </div>
+
+                <ul class="filters" id="filters">
+                    <li><button class="button button--quiet button--small filter" type="button"
+                                data-filter="all" aria-pressed="true">All</button></li>
+                    <li><button class="button button--quiet button--small filter" type="button"
+                                data-filter="unread" aria-pressed="false">Unread</button></li>
+                    <li><button class="button button--quiet button--small filter" type="button"
+                                data-filter="reading" aria-pressed="false">Reading</button></li>
+                    <li><button class="button button--quiet button--small filter" type="button"
+                                data-filter="finished" aria-pressed="false">Finished</button></li>
+                </ul>
+
+                <p class="text-sm text-muted" id="saved-count"></p>
+
+                <div id="saved"></div>
+
+                <div class="form-actions">
+                    <button class="button button--small" type="button" id="export">
+                        Export JSON
+                    </button>
+
+                    <!-- A file input cannot be styled, so it is hidden
+                         off-screen and operated through its label. It stays in
+                         the accessibility tree and stays focusable, which
+                         display:none would not. -->
+                    <label class="button button--quiet button--small" for="import">
+                        Import JSON
+                    </label>
+                    <input type="file" id="import" accept="application/json"
+                           class="visually-hidden">
+
+                    <button class="button button--danger button--small" type="button"
+                            id="clear-saved">Clear the list</button>
+                </div>
+            </section>
+
+        </main>
+
+        <footer class="app-footer">
+            <p class="text-sm text-muted">
+                Week 5 build &mdash; TypeScript, with typed API and storage boundaries
+                and the request phase as a discriminated union. Book data from Open Library.
+            </p>
+        </footer>
+
+        <template id="card-template">
+            <li class="result-card">
+                <img class="result-card__cover" alt="" width="90" height="135">
+                <h3 class="result-card__name"></h3>
+                <p class="result-card__meta" data-field="author"></p>
+                <p class="result-card__meta" data-field="year"></p>
+                <p class="result-card__meta" data-field="editions"></p>
+                <p class="result-card__actions">
+                    <button class="button button--small" type="button"
+                            data-action="save">Save</button>
+                </p>
+            </li>
+        </template>
+
+        <template id="saved-template">
+            <li class="expense">
+                <p class="expense__description"></p>
+                <p class="expense__date"></p>
+                <p class="expense__meta text-sm text-muted"></p>
+
+                <div class="expense__actions">
+                    <span class="field field--inline">
+                        <label class="text-sm" data-for="status">Status</label>
+                        <select class="status-select" data-action="status">
+                            <option value="unread">Unread</option>
+                            <option value="reading">Reading</option>
+                            <option value="finished">Finished</option>
+                        </select>
+                    </span>
+
+                    <button class="button button--danger button--small" type="button"
+                            data-action="remove">Remove</button>
+                </div>
+
+                <span class="field">
+                    <label class="text-sm" data-for="note">Note</label>
+                    <textarea class="note-field" data-action="note" rows="2"
+                              placeholder="Why you saved it, where you heard about it"></textarea>
+                </span>
+            </li>
+        </template>
+
+        <template id="tile-template">
+            <li class="summary__tile">
+                <span class="summary__label"></span>
+                <span class="summary__value"></span>
+            </li>
+        </template>
+
+        <template id="skeleton-template">
+            <li class="skeleton">
+                <div class="skeleton__line skeleton__line--short"></div>
+                <div class="skeleton__line skeleton__line--long"></div>
+                <div class="skeleton__line skeleton__line--long"></div>
+            </li>
+        </template>
+
+    </div>
+
+    <!-- type="module": deferred, scoped, evaluated once, always strict.
+         It will not load over file:// - the page needs a local server. -->
+    <script type="module" src="/src/main.ts"></script>
+</body>
+</html>
