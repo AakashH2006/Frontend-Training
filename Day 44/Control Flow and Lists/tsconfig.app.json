@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    /* `types: []` so no ambient @types packages leak in. The app runs in a
+       browser; nothing here should see Node's globals. */
+    "types": [],
+    "outDir": "./out-tsc/app",
+    "composite": true
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["src/**/*.spec.ts"]
+}

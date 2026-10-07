@@ -1,0 +1,169 @@
+<div class="page">
+    <header class="app-header">
+        <h1>Reading List</h1>
+        <p class="text-muted">
+            Day 44 &mdash; the built-in control flow blocks, and a list that
+            filters and sorts.
+        </p>
+    </header>
+
+    <main id="main">
+        <app-panel heading="Your list" headingId="saved">
+            <button
+                panel-actions
+                type="button"
+                class="button button--quiet button--small"
+                id="reset"
+                (click)="reset()"
+            >
+                Reset
+            </button>
+
+            <ul class="summary" aria-label="Status summary">
+                <app-stat label="On the list" [value]="total()" />
+                @for (status of statuses; track status) {
+                    <app-stat [label]="statusLabels[status]" [value]="counts()[status]" />
+                }
+            </ul>
+
+            <div class="toolbar">
+                <div class="field">
+                    <label for="list-query">Filter your list</label>
+                    <input
+                        id="list-query"
+                        type="search"
+                        placeholder="title or author"
+                        autocomplete="off"
+                        [value]="query()"
+                        (input)="setQuery($event)"
+                    />
+                </div>
+
+                <div class="field">
+                    <label for="list-sort">Sort by</label>
+                    <select id="list-sort" [value]="sort()" (change)="setSort($event)">
+                        @for (option of sorts; track option) {
+                            <option [value]="option">{{ sortLabels[option] }}</option>
+                        }
+                    </select>
+                </div>
+            </div>
+
+            <ul class="filters">
+                @for (option of filters; track option) {
+                    <li>
+                        <button
+                            type="button"
+                            class="button button--quiet button--small filter"
+                            [attr.aria-pressed]="option === filter()"
+                            (click)="filter.set(option)"
+                        >
+                            {{ filterLabels[option] }}
+                        </button>
+                    </li>
+                }
+            </ul>
+
+            <!-- `@let` declares a template-local variable. New in Angular 18,
+                 and what it replaces is reading `visible().length` in three
+                 places - each read is cheap because it is a computed, but
+                 `shown` is clearer than the same expression three lines apart.
+
+                 It is a declaration, not an assignment: there is no way to
+                 reassign it, which keeps the template an expression language.
+                 Scoped to the rest of this template, so it cannot be used
+                 above the line that declares it. -->
+            @let shown = visible().length;
+            @let filtering = query().trim().length > 0 || filter() !== 'all';
+
+            <p class="text-sm text-muted" id="shown-count">
+                Showing {{ shown }} of {{ total() }}.
+            </p>
+
+            <!-- @for with @empty.
+
+                 @empty is the part I did not expect and immediately liked: the
+                 empty case belongs to the loop. In React the equivalent is
+                 `{list.length === 0 ? <Empty/> : list.map(...)}`, which states
+                 the condition and then the loop states it again by producing
+                 nothing. One construct here, and no condition to keep in
+                 step. -->
+            <ul class="book-grid">
+                @for (book of visible(); track book.id; let i = $index, isFirst = $first) {
+                    <li>
+                        <!-- Contextual variables. $index, $first, $last, $even,
+                             $odd and $count are always in scope; aliasing them
+                             with `let` is only necessary when a nested loop
+                             would shadow them.
+
+                             Used for something real: the first result is
+                             announced as such, which a screen reader user gets
+                             from nothing else on the page. -->
+                        <app-book-card
+                            [book]="book"
+                            [attr.aria-label]="isFirst ? book.title + ' (first result)' : null"
+                        />
+
+                        <div class="form-actions">
+                            <span class="field field--inline">
+                                <label class="text-sm" [attr.for]="'status-' + book.id">
+                                    Status
+                                </label>
+                                <select
+                                    [attr.id]="'status-' + book.id"
+                                    [value]="book.status"
+                                    (change)="changeStatus(book.id, $event)"
+                                >
+                                    @for (status of statuses; track status) {
+                                        <option [value]="status">{{ statusLabels[status] }}</option>
+                                    }
+                                </select>
+                            </span>
+
+                            <span class="text-sm text-muted">#{{ i + 1 }} of {{ shown }}</span>
+
+                            <button
+                                type="button"
+                                class="button button--danger button--small"
+                                (click)="remove(book.id)"
+                            >
+                                Remove
+                            </button>
+                        </div>
+                    </li>
+                } @empty {
+                    <!-- Two empty states, told apart by `filtering`.
+                         "Nothing saved" and "nothing matches" are different
+                         problems with different actions - Day 29's lesson, and
+                         Week 4 showed one message for both. -->
+                    <li class="empty-state" id="empty">
+                        @if (filtering) {
+                            <p>No book matches that filter.</p>
+                            <button
+                                type="button"
+                                class="button button--small"
+                                id="clear-filters"
+                                (click)="clearFilters()"
+                            >
+                                Clear the filters
+                            </button>
+                        } @else {
+                            <p>Nothing on the list. Press Reset to put the books back.</p>
+                        }
+                    </li>
+                }
+            </ul>
+        </app-panel>
+
+        <app-panel heading="The control flow blocks" headingId="blocks">
+            <app-control-flow [books]="books()" />
+        </app-panel>
+    </main>
+
+    <footer class="app-footer">
+        <p class="text-sm text-muted">
+            Week 9, Day 44 &mdash; built-in control flow, <code>track</code>,
+            contextual variables and <code>&#64;let</code>.
+        </p>
+    </footer>
+</div>

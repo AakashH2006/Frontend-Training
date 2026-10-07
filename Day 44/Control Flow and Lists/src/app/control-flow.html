@@ -1,0 +1,152 @@
+<dl class="notes-list">
+    <!-- ================= @switch ================= -->
+    <dt>&#64;switch &mdash; one of several</dt>
+    <dd>
+        <div class="form-actions">
+            <button type="button" class="button button--small" id="cycle-phase" (click)="cyclePhase()">
+                Next phase (now: {{ phase() }})
+            </button>
+        </div>
+
+        <!-- The four request states from Day 18, as a switch.
+
+             Two things differ from a JavaScript switch:
+
+               - there is no fall-through, so no `break` and no
+                 `noFallthroughCasesInSwitch` to worry about
+               - @default is optional, and omitting it renders nothing for an
+                 unmatched value rather than being an error
+
+             That second one is a real downside against Week 5's `never`
+             exhaustiveness check: adding a sixth phase here renders silence
+             rather than failing to compile. `strictTemplates` does not catch
+             it, because every case is still a valid comparison.
+
+             So the exhaustiveness lives on the class instead - `phases` is an
+             `as const` tuple and `nextPhase` indexes it, which means a new
+             phase has to be added there first. -->
+        <p class="status" id="phase-out">
+            @switch (phase()) {
+                @case ('idle') {
+                    Search for a title, an author or a subject.
+                }
+                @case ('loading') {
+                    Searching&hellip;
+                }
+                @case ('success') {
+                    Showing {{ books().length }} results.
+                }
+                @case ('empty') {
+                    Nothing matched.
+                }
+                @case ('failed') {
+                    That search did not work.
+                }
+                @default {
+                    <!-- Reachable only if a phase is added without a case. -->
+                    Unknown phase: {{ phase() }}
+                }
+            }
+        </p>
+
+        <p class="text-sm text-muted">
+            <code>&#64;switch</code> compares with <code>===</code> and has no
+            fall-through. <code>&#64;default</code> is optional, which is
+            weaker than the <code>never</code> check this repo has used since
+            Day 22 &mdash; so the closed list lives on the class.
+        </p>
+    </dd>
+
+    <!-- ================= nested @for ================= -->
+    <dt>Nested &#64;for, grouped by status</dt>
+    <dd>
+        @for (group of grouped(); track group.status) {
+            <section class="group">
+                <h4 class="group__heading">
+                    {{ group.status }}
+                    <!-- $count, from the outer loop. -->
+                    <span class="text-sm text-muted">({{ group.books.length }})</span>
+                </h4>
+
+                <ul class="group__list">
+                    <!-- The inner loop's $index shadows the outer one's. That
+                         is why aliasing with `let i = $index` exists: without
+                         it, an outer index is unreachable from in here. -->
+                    @for (book of group.books; track book.id; let inner = $index) {
+                        <li class="text-sm">{{ inner + 1 }}. {{ book.title }}</li>
+                    }
+                </ul>
+            </section>
+        } @empty {
+            <p class="empty-state">No groups, because there are no books.</p>
+        }
+    </dd>
+
+    <!-- ================= track, and getting it wrong ================= -->
+    <dt>What <code>track</code> is for</dt>
+    <dd>
+        <div class="form-actions">
+            <button type="button" class="button button--small" id="load-rows" (click)="loadRows()">
+                Load 3 rows
+            </button>
+            <button type="button" class="button button--quiet button--small" id="reverse-rows" (click)="reverseRows()">
+                Reverse them
+            </button>
+        </div>
+
+        @if (rows().length === 0) {
+            <p class="text-sm text-muted">Press Load to see the two lists.</p>
+        } @else {
+            <div class="track-demo">
+                <div>
+                    <h4 class="text-sm">track book.id &mdash; correct</h4>
+                    <ul class="group__list" id="track-good">
+                        @for (book of rows(); track book.id) {
+                            <li class="text-sm">
+                                <label>
+                                    {{ book.title }}
+                                    <!-- An uncontrolled input: Angular never
+                                         sets its value, so whatever is typed
+                                         stays in the DOM node. That is what
+                                         makes the difference visible - the
+                                         node's identity is the only thing
+                                         holding the text. -->
+                                    <input type="text" placeholder="type here" size="8" />
+                                </label>
+                            </li>
+                        }
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-sm">track $index &mdash; wrong here</h4>
+                    <ul class="group__list" id="track-bad">
+                        @for (book of rows(); track $index) {
+                            <li class="text-sm">
+                                <label>
+                                    {{ book.title }}
+                                    <input type="text" placeholder="type here" size="8" />
+                                </label>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+
+            <p class="text-sm text-muted">
+                Type into both lists, then press Reverse. On the left the text
+                follows its book, because the DOM node is identified by
+                <code>book.id</code> and Angular moves it. On the right the
+                nodes stay where they are and only the titles change, so the
+                text ends up on the wrong book.
+            </p>
+
+            <p class="text-sm text-muted">
+                That is Week 6's key lesson with a demonstration attached.
+                <code>track $index</code> is correct only for a list that never
+                reorders and never has an item removed from the middle &mdash;
+                an append-only log, say.
+            </p>
+        }
+    </dd>
+</dl>

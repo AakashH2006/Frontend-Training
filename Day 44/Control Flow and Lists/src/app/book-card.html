@@ -1,0 +1,17 @@
+<article class="book-card" [class]="'book-card--' + book().status">
+    <h3 class="book-card__title">{{ book().title }}</h3>
+
+    <p class="book-card__meta">{{ authorLine() }}</p>
+    <p class="book-card__meta">{{ yearLine() }}</p>
+
+    <!-- `!== undefined`, not a truthiness test. An empty-string note would be
+         falsy, and Week 6 spent a day on exactly this. @if has no special
+         behaviour here - it is the same mistake in a different syntax. -->
+    @if (book().note !== undefined) {
+        <p class="book-card__note">{{ book().note }}</p>
+    }
+
+    <p class="book-card__status">
+        <app-badge [status]="book().status" />
+    </p>
+</article>
