@@ -1,0 +1,16 @@
+/* Component styles are scoped by default.
+
+   Angular adds an attribute to this component's elements and rewrites these
+   selectors to match it, so `.book-card` here cannot affect a `.book-card`
+   anywhere else. That is the thing I would have reached for CSS modules to get
+   in the React weeks, and it is on by default.
+
+   The trade: a selector here cannot reach *into* a child component either,
+   which is the right default and occasionally inconvenient. */
+
+.book-card__title {
+    /* Deliberately scoped, to prove the point: this rule exists only for
+       elements inside this component. The same class in styles.css handles the
+       shared appearance. */
+    margin-bottom: var(--space-1);
+}

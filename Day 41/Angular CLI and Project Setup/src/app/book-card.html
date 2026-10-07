@@ -1,0 +1,29 @@
+<!-- Day 41 - one book.
+
+     `book()` with the parentheses, because a signal input is a getter. Reading
+     it as `book` would give the signal object itself, and strictTemplates
+     turns that into a type error rather than rendering "[object Object]". -->
+
+<article class="book-card book-card--{{ book().status }}">
+    <h3 class="book-card__title">{{ book().title }}</h3>
+
+    <p class="book-card__meta">{{ authorLine() }}</p>
+
+    <p class="book-card__meta">
+        <!-- A ternary, which is as much logic as a template should hold. The
+             `?? ` and `?.` operators work here too; what does not work is a
+             statement, an assignment or a function declaration - the template
+             language is deliberately an expression language. -->
+        {{ book().year ? 'First published ' + book().year : 'Publication year unknown' }}
+    </p>
+
+    @if (book().note) {
+        <p class="book-card__note">{{ book().note }}</p>
+    }
+
+    <p class="book-card__status">
+        <span class="badge badge--{{ book().status }}">
+            {{ statusLabels[book().status] }}
+        </span>
+    </p>
+</article>

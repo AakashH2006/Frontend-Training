@@ -1,0 +1,83 @@
+<!-- Day 41 - the root template.
+
+     An HTML file, not JSX. So: `class`, not `className`; a real `for` on a
+     label; and no expression can be smuggled in that is not valid HTML. The
+     bindings are the syntax Angular adds, and Day 43 is about those properly. -->
+
+<div class="page">
+    <header class="app-header">
+        <!-- Interpolation. `{{ }}` evaluates an expression against the
+             component class and escapes the result - the same safety as JSX's
+             braces, by a different route. -->
+        <h1>{{ title }}</h1>
+
+        <p class="text-muted">
+            Day 41 &mdash; a standalone Angular application, bootstrapped
+            without an NgModule. Three books from a constant; signals, bindings
+            and control flow are the next three days.
+        </p>
+    </header>
+
+    <main id="main">
+        <section class="panel" aria-labelledby="summary-heading">
+            <h2 id="summary-heading">Summary</h2>
+
+            <ul class="summary" aria-label="Status summary">
+                <li class="summary__tile">
+                    <span class="summary__label">On the list</span>
+                    <!-- A getter, called like a method. Angular calls it on
+                         every change-detection pass, which is fine for three
+                         books and is the reason computed() exists. -->
+                    <span class="summary__value">{{ total }}</span>
+                </li>
+
+                <!-- @for is Angular 17+ control flow, built into the template
+                     language. The old form was an attribute directive,
+                     `*ngFor="let s of statuses"`, which needed CommonModule in
+                     `imports`. This needs nothing imported at all.
+
+                     `track` is not optional and that is deliberate: it is
+                     React's `key` with the same job - telling the framework
+                     which item is which across renders - and Angular makes it
+                     a compile error to leave out rather than a console
+                     warning. Day 44 is the full version. -->
+                @for (status of statuses; track status) {
+                    <li class="summary__tile">
+                        <span class="summary__label">{{ statusLabels[status] }}</span>
+                        <span class="summary__value">{{ countOf(status) }}</span>
+                    </li>
+                }
+            </ul>
+        </section>
+
+        <section class="panel" aria-labelledby="books-heading">
+            <h2 id="books-heading">Your list</h2>
+
+            <!-- @if / @else, also built in. The old `*ngIf` with an `; else`
+                 template reference was the thing I found least readable about
+                 Angular from the outside. -->
+            @if (books().length === 0) {
+                <p class="empty-state">Nothing on the list yet.</p>
+            } @else {
+                <ul class="book-grid">
+                    @for (book of books(); track book.id) {
+                        <!-- Setting an input. `[book]` means "bind the
+                             expression `book` to the input named `book`";
+                             without the brackets it would pass the literal
+                             string "book". That mistake is the Angular version
+                             of JSX's `books="BOOKS"` from Day 26, and
+                             strictTemplates catches it. -->
+                        <li><app-book-card [book]="book" /></li>
+                    }
+                </ul>
+            }
+        </section>
+    </main>
+
+    <footer class="app-footer">
+        <p class="text-sm text-muted">
+            Week 9, Day 41 &mdash; the CLI, <code>bootstrapApplication</code>,
+            and what is in <code>src/app</code>.
+        </p>
+    </footer>
+</div>
