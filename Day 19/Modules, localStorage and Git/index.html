@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Day 19 | Reading List</title>
+
+    <meta name="description" content="Day 19: splitting a browser app into ES modules and persisting the reading list with localStorage.">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <div class="page">
+
+        <header class="app-header">
+            <h1>Reading List</h1>
+            <p class="text-muted">
+                Day 19 &mdash; the same app as Day 18, taken apart. The network
+                layer, the store, the rendering and the wiring are now four
+                separate ES modules, and the saved list survives a reload
+                because it is written to <code>localStorage</code>.
+            </p>
+            <p class="text-sm text-muted">
+                Search is live against
+                <a href="https://openlibrary.org/developers/api">Open Library</a>,
+                which is real data and needs no key.
+            </p>
+            <p class="status text-sm" id="storage-note"></p>
+        </header>
+
+        <section class="panel" aria-labelledby="search-heading">
+            <h2 id="search-heading">Search</h2>
+
+            <form id="search-form" class="expense-form" novalidate>
+                <div class="toolbar">
+                    <div class="field">
+                        <label for="query">Title, author or subject</label>
+                        <input type="search" id="query" name="query"
+                               autocomplete="off" placeholder="dune, ursula le guin, cryptography">
+                    </div>
+                    <button class="button" type="submit">Search</button>
+                </div>
+            </form>
+
+            <p class="status" id="status" role="status"></p>
+
+            <div id="results"></div>
+        </section>
+
+        <section class="panel" aria-labelledby="saved-heading">
+            <h2 id="saved-heading">Saved</h2>
+
+            <p class="text-sm text-muted" id="saved-count"></p>
+
+            <ul class="filters" id="filters">
+                <li><button class="button button--quiet button--small filter" type="button"
+                            data-filter="all" aria-pressed="true">All</button></li>
+                <li><button class="button button--quiet button--small filter" type="button"
+                            data-filter="unread" aria-pressed="false">Unread</button></li>
+                <li><button class="button button--quiet button--small filter" type="button"
+                            data-filter="reading" aria-pressed="false">Reading</button></li>
+                <li><button class="button button--quiet button--small filter" type="button"
+                            data-filter="finished" aria-pressed="false">Finished</button></li>
+            </ul>
+
+            <div id="saved"></div>
+
+            <div class="form-actions">
+                <button class="button button--small" type="button" id="export">Export JSON</button>
+
+                <label class="button button--quiet button--small" for="import">
+                    Import JSON
+                </label>
+                <input type="file" id="import" accept="application/json" class="visually-hidden">
+
+                <button class="button button--danger button--small" type="button"
+                        id="clear-saved">Clear the list</button>
+            </div>
+        </section>
+
+        <template id="card-template">
+            <li class="result-card">
+                <img class="result-card__cover" alt="" width="90" height="135">
+                <h3 class="result-card__name"></h3>
+                <p class="result-card__meta" data-field="author"></p>
+                <p class="result-card__meta" data-field="year"></p>
+                <p class="result-card__meta" data-field="editions"></p>
+                <p class="result-card__actions">
+                    <button class="button button--small" type="button"
+                            data-action="save">Save</button>
+                </p>
+            </li>
+        </template>
+
+        <template id="saved-template">
+            <li class="expense">
+                <p class="expense__description"></p>
+                <p class="expense__date"></p>
+                <p class="expense__actions">
+                    <label class="text-sm">Status</label>
+                    <select class="status-select" data-action="status">
+                        <option value="unread">Unread</option>
+                        <option value="reading">Reading</option>
+                        <option value="finished">Finished</option>
+                    </select>
+                    <button class="button button--danger button--small" type="button"
+                            data-action="remove">Remove</button>
+                </p>
+            </li>
+        </template>
+
+        <template id="skeleton-template">
+            <li class="skeleton">
+                <div class="skeleton__line skeleton__line--short"></div>
+                <div class="skeleton__line skeleton__line--long"></div>
+                <div class="skeleton__line skeleton__line--long"></div>
+            </li>
+        </template>
+
+    </div>
+
+    <!-- type="module" is the whole point of today. It is deferred by default,
+         scoped rather than global, evaluated once, and always strict. It also
+         will not run from file:// - the page needs a local server. -->
+    <script type="module" src="main.js"></script>
+</body>
+</html>
