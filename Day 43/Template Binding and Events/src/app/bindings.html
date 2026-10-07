@@ -1,0 +1,196 @@
+<!-- Day 43 - the five bindings, each with something observable. -->
+
+<dl class="notes-list">
+    <!-- ================= 1. Interpolation ================= -->
+    <dt>1. Interpolation &mdash; <code>{{ '{{ expression }}' }}</code></dt>
+    <dd>
+        <p id="interp-out">The title is {{ title() }}, {{ title().length }} characters.</p>
+
+        <!-- The line above has a quirk worth knowing: to print literal
+             double braces, the expression itself has to be a string. There is
+             no escape character in the template language. -->
+
+        <p class="text-sm text-muted">
+            Evaluated against the class and escaped on the way out. It accepts
+            an <em>expression</em>, not a statement &mdash; no assignment, no
+            <code>;</code>, no function declaration. That restriction is the
+            template language's whole design: logic belongs on the class.
+        </p>
+    </dd>
+
+    <!-- ================= 2. Property binding ================= -->
+    <dt>2. Property binding &mdash; <code>[property]</code></dt>
+    <dd>
+        <button
+            type="button"
+            class="button button--small"
+            id="prop-target"
+            [disabled]="disabled()"
+        >
+            I am {{ disabled() ? 'disabled' : 'enabled' }}
+        </button>
+
+        <button
+            type="button"
+            class="button button--quiet button--small"
+            id="prop-toggle"
+            (click)="toggleDisabled()"
+        >
+            Toggle
+        </button>
+
+        <p class="text-sm text-muted">
+            <code>[disabled]</code> sets the DOM <em>property</em>. Writing
+            <code>disabled="false"</code> instead would set the
+            <em>attribute</em> to the string <code>"false"</code>, and a
+            present <code>disabled</code> attribute disables the button
+            whatever its value &mdash; so the plain version is permanently
+            disabled. That is the single most common binding mistake and it
+            fails in the direction that looks deliberate.
+        </p>
+    </dd>
+
+    <!-- ================= 3. Attribute binding ================= -->
+    <dt>3. Attribute binding &mdash; <code>[attr.name]</code></dt>
+    <dd>
+        <label class="text-sm" for="attr-input">Title</label>
+        <input
+            id="attr-input"
+            [value]="title()"
+            [attr.aria-describedby]="describedBy()"
+            readonly
+        />
+        <p class="text-sm text-muted" id="title-help">
+            For attributes with no matching DOM property &mdash; every
+            <code>aria-*</code>, <code>colspan</code>, <code>role</code>.
+            Binding <code>null</code> removes the attribute entirely, which is
+            how an optional <code>aria-describedby</code> is expressed.
+        </p>
+    </dd>
+
+    <!-- ================= 4. Class and style binding ================= -->
+    <dt>4. Class and style binding</dt>
+    <dd>
+        <p
+            id="class-target"
+            class="book-card__note"
+            [class.is-highlighted]="highlighted()"
+            [class]="'status-' + status()"
+        >
+            status-{{ status() }}{{ highlighted() ? ', highlighted' : '' }}
+        </p>
+
+        <div class="form-actions">
+            <button type="button" class="button button--small" id="cycle-status" (click)="cycleStatus()">
+                Cycle status
+            </button>
+            <button
+                type="button"
+                class="button button--quiet button--small"
+                id="toggle-highlight"
+                (click)="highlighted.set(!highlighted())"
+            >
+                Toggle highlight
+            </button>
+        </div>
+
+        <!-- A style binding with a unit. `[style.width.%]` is Angular
+             appending the unit for me, which is the one piece of sugar in the
+             binding syntax I actively like - the alternative is string
+             concatenation in a template. -->
+        <div class="meter" role="img" [attr.aria-label]="progressLabel()">
+            <div class="meter__fill" id="meter-fill" [style.width.%]="progress()"></div>
+        </div>
+
+        <label class="text-sm" for="progress-range">Progress</label>
+        <input
+            id="progress-range"
+            type="range"
+            min="0"
+            max="100"
+            [value]="progress()"
+            (input)="setProgress($event)"
+        />
+        <p class="text-sm" id="progress-out">{{ progressLabel() }}</p>
+
+        <p class="text-sm text-muted">
+            <code>[class.x]</code> toggles one class and leaves the rest alone.
+            <code>[class]</code> with a string <em>replaces</em> the bound set
+            &mdash; it does not touch the static <code>class</code> attribute,
+            which is why both survive here.
+        </p>
+    </dd>
+
+    <!-- ================= 5. Event binding ================= -->
+    <dt>5. Event binding &mdash; <code>(event)</code></dt>
+    <dd>
+        <div class="form-actions">
+            <button type="button" class="button button--small" id="click-me" (click)="handleClick()">
+                Clicked {{ clicks() }} times
+            </button>
+            <button type="button" class="button button--quiet button--small" id="clear-log" (click)="clearLog()">
+                Clear log
+            </button>
+        </div>
+
+        <label class="text-sm" for="key-input">Type here, then press Escape</label>
+        <input
+            id="key-input"
+            [value]="typed()"
+            (input)="handleInput($event)"
+            (keydown)="handleKey($event)"
+            autocomplete="off"
+        />
+        <p class="text-sm" id="key-out">
+            value: "{{ typed() }}" &middot; last key: {{ lastKey() || '(none)' }}
+        </p>
+
+        <p class="text-sm text-muted">
+            Any DOM event name in parentheses. <code>$event</code> is the real
+            event, typed &mdash; so a handler declaring
+            <code>KeyboardEvent</code> is checked against the event the
+            template actually binds.
+        </p>
+
+        @if (log().length > 0) {
+            <ul class="notes-list" id="event-log">
+                @for (line of log(); track $index) {
+                    <li class="text-sm">{{ line }}</li>
+                }
+            </ul>
+        }
+    </dd>
+
+    <!-- ================= 6. Two-way, and when not to ================= -->
+    <dt>6. Two-way binding</dt>
+    <dd>
+        <!-- Deliberately NOT using [(ngModel)].
+
+             ngModel needs FormsModule imported and it couples the field to a
+             forms API this component has no other use for. Day 49 is reactive
+             forms, which is the right tool for a real form - and for one
+             field, `[value]` plus `(input)` is the same two bindings written
+             out, which is all `[()]` ever is:
+
+                 [(thing)]  ==  [thing] + (thingChange)
+
+             The "banana in a box" is a naming convention, not a feature. -->
+        <label class="text-sm" for="note-input">Note</label>
+        <input
+            id="note-input"
+            [value]="note()"
+            (input)="note.set($any($event.target).value)"
+            autocomplete="off"
+        />
+        <p class="text-sm" id="note-out">{{ note().length }} characters</p>
+
+        <p class="text-sm text-muted">
+            <code>$any()</code> there is the template's escape hatch, and it is
+            the only one in this project. It exists because
+            <code>$event.target</code> is <code>EventTarget | null</code> and a
+            template cannot narrow a type. The honest fix is a method on the
+            class &mdash; which is what <code>handleInput</code> above does,
+            and why that one is the version to copy.
+        </p>
+    </dd>
+</dl>

@@ -1,0 +1,26 @@
+:host { display: block; }
+
+.is-highlighted {
+    background-color: #fff6e0;
+    border-left: 4px solid var(--color-focus);
+    padding-left: var(--space-2);
+}
+
+.status-unread   { color: var(--color-unread); }
+.status-reading  { color: var(--color-reading); }
+.status-finished { color: var(--color-finished); }
+
+.meter {
+    height: 10px;
+    background-color: var(--color-surface-alt);
+    border-radius: 999px;
+    overflow: hidden;
+    margin: var(--space-2) 0;
+}
+
+.meter__fill {
+    height: 100%;
+    background-color: var(--color-brand);
+    /* No transition, because the range input drives it directly and a
+       transition would make the thumb and the bar disagree. */
+}

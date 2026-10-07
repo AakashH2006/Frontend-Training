@@ -1,0 +1,87 @@
+<div class="page">
+    <header class="app-header">
+        <h1>Reading List</h1>
+        <p class="text-muted">
+            Day 43 &mdash; the five kinds of binding, and events. The list below
+            is interactive for the first time this week.
+        </p>
+    </header>
+
+    <main id="main">
+        <app-panel heading="Your list" headingId="saved">
+            <button
+                panel-actions
+                type="button"
+                class="button button--quiet button--small"
+                id="reset"
+                (click)="reset()"
+            >
+                Reset
+            </button>
+
+            <p class="text-sm text-muted" id="count">
+                {{ total() }} {{ total() === 1 ? 'book' : 'books' }} on the list.
+            </p>
+
+            @if (total() === 0) {
+                <p class="empty-state">
+                    Everything removed. Press Reset to put them back.
+                </p>
+            } @else {
+                <ul class="book-grid">
+                    @for (book of books(); track book.id) {
+                        <li>
+                            <app-book-card [book]="book" />
+
+                            <div class="form-actions">
+                                <span class="field field--inline">
+                                    <!-- `[attr.for]` is not needed: `for` on a
+                                         label maps to the `htmlFor` property,
+                                         and Angular accepts `for` in the
+                                         template and maps it. One of the few
+                                         places it is friendlier than JSX,
+                                         which requires htmlFor. -->
+                                    <label class="text-sm" [attr.for]="'status-' + book.id">
+                                        Status
+                                    </label>
+
+                                    <select
+                                        [attr.id]="'status-' + book.id"
+                                        [value]="book.status"
+                                        (change)="changeStatus(book.id, $event)"
+                                    >
+                                        @for (status of statuses; track status) {
+                                            <option [value]="status">
+                                                {{ statusLabels[status] }}
+                                            </option>
+                                        }
+                                    </select>
+                                </span>
+
+                                <button
+                                    type="button"
+                                    class="button button--danger button--small"
+                                    (click)="remove(book.id)"
+                                >
+                                    Remove
+                                </button>
+                            </div>
+                        </li>
+                    }
+                </ul>
+            }
+        </app-panel>
+
+        <app-panel heading="Every kind of binding" headingId="bindings">
+            <app-bindings />
+        </app-panel>
+    </main>
+
+    <footer class="app-footer">
+        <p class="text-sm text-muted">
+            Week 9, Day 43 &mdash; interpolation, <code>[property]</code>,
+            <code>[attr.x]</code>, <code>[class.x]</code>,
+            <code>[style.x]</code> and <code>(event)</code>.
+        </p>
+    </footer>
+</div>
