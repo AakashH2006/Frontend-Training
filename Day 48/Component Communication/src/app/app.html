@@ -1,0 +1,179 @@
+<div class="page">
+    <header class="app-header">
+        <h1>Reading List</h1>
+        <p class="text-muted">
+            Day 48 &mdash; four ways for components to talk, and the question of
+            which one a given piece of communication wants.
+        </p>
+
+        <!-- The notice bar takes NO inputs. It reads a service that components
+             five levels down write to, and there is no binding that could have
+             carried the message here. -->
+        <app-notice-bar />
+
+        <p
+            class="status text-sm"
+            [class.status--error]="storage.problem() !== null || !storage.available"
+            role="status"
+            id="storage-note"
+        >
+            @if (storage.problem(); as problem) {
+                {{ problem }}
+            } @else if (storage.available) {
+                Saved in this browser.
+            } @else {
+                This browser is blocking local storage.
+            }
+        </p>
+    </header>
+
+    <main id="main">
+        <app-panel heading="Your list" headingId="saved">
+            <!-- Nothing to coordinate, so the template calls the service. -->
+            <button
+                panel-actions
+                type="button"
+                class="button button--quiet button--small"
+                id="reset"
+                (click)="list.reset()"
+            >
+                Reset
+            </button>
+
+            <ul class="summary" aria-label="Status summary">
+                <app-stat label="On the list" [value]="list.total()" />
+                @for (status of statuses; track status) {
+                    <app-stat [label]="statusLabels[status]" [value]="list.counts()[status]" />
+                }
+            </ul>
+
+            <app-filter-bar
+                [query]="list.query()"
+                (queryChange)="onQueryChange($event)"
+                [filter]="list.filter()"
+                (filterChange)="onFilterChange($event)"
+                [sort]="list.sort()"
+                (sortChange)="onSortChange($event)"
+                [shown]="list.visible().length"
+                [total]="list.total()"
+            />
+
+            @if (list.visible().length === 0) {
+                <app-empty-state
+                    [message]="
+                        list.filtering()
+                            ? 'No book matches that filter.'
+                            : 'Nothing on the list. Press Reset to put the books back.'
+                    "
+                >
+                    @if (list.filtering()) {
+                        <button
+                            type="button"
+                            class="button button--small"
+                            id="clear-filters"
+                            (click)="list.clearFilters()"
+                        >
+                            Clear the filters
+                        </button>
+                    }
+                </app-empty-state>
+            } @else {
+                <ul class="book-grid">
+                    @for (book of list.visible(); track book.id; let i = $index) {
+                        <li>
+                            <!-- STILL inputs and outputs, deliberately.
+
+                                 BookCard could inject ReadingListService and
+                                 call `list.remove(id)` itself. It would be
+                                 fewer lines here and it would be worse:
+
+                                   - the card would only work inside an app
+                                     that has that service
+                                   - it could not be rendered twice against
+                                     two different lists
+                                   - a test would need the whole service to
+                                     render one card
+                                   - and the parent could no longer do
+                                     anything when a book is removed, which is
+                                     exactly what onRemove does below
+
+                                 A presentational component should stay a
+                                 function of its inputs. That is the rule DI
+                                 makes easy to break. -->
+                            <app-book-card
+                                [book]="book"
+                                [position]="i + 1"
+                                (statusChange)="onStatusChange(book.id, $event)"
+                                (remove)="onRemove($event)"
+                            />
+                        </li>
+                    }
+                </ul>
+            }
+        </app-panel>
+
+        <app-panel heading="Why not just pass props" headingId="deep">
+            <p class="text-sm text-muted">
+                The toolbar at the bottom of this stack needs the reading list
+                and the notifications. Nothing in between does.
+            </p>
+            <app-section-a />
+            <p class="text-sm text-muted">
+                With inputs and outputs, SectionA, SectionB and SectionC would
+                each carry two inputs and two outputs they never read &mdash;
+                twelve declarations to move two values three levels. With
+                injection the toolbar takes nothing from its parents at all.
+            </p>
+        </app-panel>
+
+        <app-panel heading="Which mechanism" headingId="guide">
+            <dl class="notes-list">
+                <dt><code>input()</code> &mdash; a value the child renders</dt>
+                <dd>
+                    Start here. A component that is a function of its inputs can
+                    be rendered anywhere, tested without a service, and used
+                    twice on one page against different data.
+                </dd>
+
+                <dt><code>output()</code> &mdash; something happened</dt>
+                <dd>
+                    So the parent decides what it means. Here it means "update
+                    the list <em>and</em> raise a notice", which the card has no
+                    business knowing.
+                </dd>
+
+                <dt><code>model()</code> &mdash; the child owns a value</dt>
+                <dd>
+                    A search box's text. Not used on this page any more:
+                    <code>list.query</code> is <code>asReadonly()</code>, and a
+                    readonly signal cannot be the target of
+                    <code>[(x)]</code> &mdash; which is Day 47's trade showing
+                    up as a constraint.
+                </dd>
+
+                <dt>A service &mdash; no useful common parent</dt>
+                <dd>
+                    The notices: raised five levels down, shown in the header,
+                    and neither is an ancestor of the other. Also the list
+                    itself, because four separate components read it.
+                </dd>
+            </dl>
+
+            <p class="text-sm text-muted">
+                The failure mode to watch for is the opposite of prop drilling:
+                a service is so easy to inject that every component ends up
+                coupled to the application, and nothing can be rendered on its
+                own. <code>BookCard</code> above is the test &mdash; it still
+                takes a book and emits events, and it still would if the service
+                were deleted.
+            </p>
+        </app-panel>
+    </main>
+
+    <footer class="app-footer">
+        <p class="text-sm text-muted">
+            Week 10, Day 48 &mdash; inputs, outputs, models and services, and
+            when each one is the right answer.
+        </p>
+    </footer>
+</div>
