@@ -1,0 +1,104 @@
+<app-panel heading="Your contacts" headingId="list">
+    <!-- An <a>, not a button with a handler. A link to another route should be
+         a link: it works with middle-click, it has a real href for the status
+         bar, and the keyboard already knows what to do with it. Day 36's
+         conclusion, and `routerLink` renders the href itself. -->
+    <a panel-actions class="button button--small" routerLink="/contacts/new">Add a contact</a>
+
+    <ul class="summary" aria-label="Group summary">
+        <app-stat label="Contacts" [value]="contacts.total()" />
+        <app-stat label="Favourites" [value]="contacts.favourites()" />
+        @for (group of groups; track group) {
+            <app-stat [label]="groupLabels[group]" [value]="contacts.counts()[group]" />
+        }
+    </ul>
+
+    <div class="toolbar">
+        <div class="field">
+            <label for="list-query">Search</label>
+            <!-- The value comes from the service, which was written from the
+                 URL. So the address bar is upstream of what is on screen, and
+                 pasting a link reproduces the view exactly. -->
+            <input
+                id="list-query"
+                type="search"
+                placeholder="name, email, phone or tag"
+                autocomplete="off"
+                [value]="contacts.query()"
+                (input)="onQuery($event)"
+            />
+        </div>
+
+        <div class="field">
+            <label for="list-sort">Sort by</label>
+            <select id="list-sort" [value]="contacts.sort()" (change)="onSort($event)">
+                @for (option of sorts; track option) {
+                    <option [value]="option">{{ sortLabels[option] }}</option>
+                }
+            </select>
+        </div>
+    </div>
+
+    <ul class="filters">
+        @for (option of filters; track option) {
+            <li>
+                <button
+                    type="button"
+                    class="button button--quiet button--small filter"
+                    [attr.aria-pressed]="option === contacts.filter()"
+                    (click)="onFilter(option)"
+                >
+                    {{ filterLabels[option] }}
+                </button>
+            </li>
+        }
+    </ul>
+
+    @let shown = contacts.visible().length;
+
+    <p class="text-sm text-muted" id="shown-count">
+        Showing {{ shown }} of {{ contacts.total() }}.
+    </p>
+
+    <ul class="book-grid">
+        @for (contact of contacts.visible(); track contact.id) {
+            <li>
+                <!-- The card's three outputs are unchanged from Day 50. Two of
+                     them now mean "navigate" and the card does not know
+                     that. -->
+                <app-contact-card
+                    [contact]="contact"
+                    [detailLink]="['/contacts', contact.id]"
+                    (edit)="onEdit($event)"
+                    (remove)="onRemove($event)"
+                    (toggleFavourite)="contacts.toggleFavourite($event)"
+                />
+            </li>
+        } @empty {
+            <li>
+                <app-empty-state
+                    [message]="
+                        contacts.filtering()
+                            ? 'No contact matches that search.'
+                            : 'No contacts yet. Add one with the form.'
+                    "
+                >
+                    @if (contacts.filtering()) {
+                        <button
+                            type="button"
+                            class="button button--small"
+                            id="clear-filters"
+                            (click)="onClearFilters()"
+                        >
+                            Clear the filters
+                        </button>
+                    } @else {
+                        <a class="button button--small" routerLink="/contacts/new">
+                            Add a contact
+                        </a>
+                    }
+                </app-empty-state>
+            </li>
+        }
+    </ul>
+</app-panel>

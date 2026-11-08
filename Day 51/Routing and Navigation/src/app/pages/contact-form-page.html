@@ -1,0 +1,25 @@
+@if (missing()) {
+    <div class="empty-state" id="no-such-contact">
+        <h2>No such contact</h2>
+        <p class="text-muted">
+            There is nothing to edit under the id <code>{{ id() }}</code>.
+        </p>
+        <a class="button button--small" routerLink="/contacts">Back to the contacts</a>
+    </div>
+} @else {
+    <app-panel
+        [heading]="editing() ? 'Editing ' + editing()!.name : 'Add a contact'"
+        headingId="form"
+    >
+        <!-- Unchanged from Day 50 except for what the parent does with the two
+             outputs: both are now a navigation, and the form has no idea. -->
+        <app-contact-form
+            [existing]="contacts.contacts()"
+            [knownTags]="contacts.allTags()"
+            [submitLabel]="editing() ? 'Save changes' : 'Add contact'"
+            [cancelLabel]="editing() ? 'Cancel' : 'Back to the list'"
+            (save)="onSave($event)"
+            (cancel)="onCancel()"
+        />
+    </app-panel>
+}

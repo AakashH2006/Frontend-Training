@@ -1,0 +1,73 @@
+<div class="page">
+    <header class="app-header">
+        <h1>Contacts</h1>
+        <p class="text-muted">
+            Day 51 &mdash; the Angular Router. Day 50's single screen, split
+            into five routes, with the search and the filters in the URL.
+        </p>
+
+        <nav class="nav" aria-label="Main">
+            <ul>
+                @for (item of nav; track item.link) {
+                    <li>
+                        <!-- `routerLinkActive` is a directive that adds a class
+                             while its link matches the current URL. React
+                             Router needs <NavLink> and a function that returns
+                             a className; this is the same job as an attribute
+                             on an ordinary link.
+
+                             `[routerLinkActiveOptions]="{ exact: true }"` on
+                             the first one, because without it /contacts stays
+                             active on /contacts/new - a prefix match, and
+                             exactly what NavLink's `end` prop is for. -->
+                        <a
+                            [routerLink]="item.link"
+                            routerLinkActive="nav__link--active"
+                            [routerLinkActiveOptions]="{ exact: item.exact }"
+                            #active="routerLinkActive"
+                            class="nav__link"
+                            [attr.aria-current]="active.isActive ? 'page' : null"
+                            >{{ item.label }}</a
+                        >
+                    </li>
+                }
+            </ul>
+        </nav>
+
+        <app-notice-bar />
+
+        <p
+            class="status text-sm"
+            [class.status--error]="storage.problem() !== null || !storage.available"
+            role="status"
+            id="storage-note"
+        >
+            @if (storage.problem(); as problem) {
+                {{ problem }}
+            } @else if (storage.available) {
+                Saved in this browser. The list will still be here after a reload.
+            } @else {
+                This browser is blocking local storage, so changes will be lost on reload.
+            }
+        </p>
+    </header>
+
+    <main id="main">
+        <!-- Where the matched route renders.
+
+             React Router's <Outlet /> is the same idea, and the difference is
+             what surrounds it: there, the routes are elements inside a
+             <Routes> in this file. Here the route table is a separate module
+             and this is the only mention of routing in the shell's template,
+             which is why the shell no longer imports a single page. -->
+        <router-outlet />
+    </main>
+
+    <footer class="app-footer">
+        <p class="text-sm text-muted">
+            Day 51 &mdash; routes, links, route parameters as inputs, query
+            parameters as state, one lazy chunk. Written up in
+            <code>Day 51/notes.md</code>.
+        </p>
+    </footer>
+</div>

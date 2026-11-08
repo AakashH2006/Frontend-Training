@@ -1,0 +1,92 @@
+@if (contact(); as contact) {
+    <app-panel [heading]="contact.name" headingId="detail">
+        <a
+            panel-actions
+            class="button button--small"
+            [routerLink]="['/contacts', contact.id, 'edit']"
+        >
+            Edit
+        </a>
+
+        <dl class="detail" id="detail-fields">
+            <dt>Group</dt>
+            <dd>{{ groupLabels[contact.group] }}</dd>
+
+            <dt>Email</dt>
+            <!-- Two optional fields, so two places that need a rendering for
+                 "not given". An empty <dd> would look like a bug. -->
+            <dd>{{ contact.email ?? 'Not given' }}</dd>
+
+            <dt>Phone</dt>
+            <dd>{{ contact.phone ?? 'Not given' }}</dd>
+
+            <dt>Tags</dt>
+            <dd>
+                @if (contact.tags.length > 0) {
+                    <ul class="tags">
+                        @for (tag of contact.tags; track tag) {
+                            <!-- A tag is a link to the filtered list, which is
+                                 only possible because the search is in the
+                                 URL. This is the payoff for Day 36's rule and
+                                 the first time I have built something that
+                                 needed it. -->
+                            <li>
+                                <a
+                                    class="tag tag--link"
+                                    routerLink="/contacts"
+                                    [queryParams]="{ q: tag }"
+                                >{{ tag }}</a>
+                            </li>
+                        }
+                    </ul>
+                } @else {
+                    None
+                }
+            </dd>
+
+            <dt>Note</dt>
+            <dd>{{ contact.note ?? 'No note' }}</dd>
+
+            <dt>Added</dt>
+            <dd>{{ contact.addedAt.slice(0, 10) }}</dd>
+        </dl>
+
+        <div class="form-actions">
+            <button
+                type="button"
+                class="button button--quiet button--small"
+                id="detail-favourite"
+                [attr.aria-pressed]="contact.favourite"
+                (click)="contacts.toggleFavourite(contact.id)"
+            >
+                {{ contact.favourite ? 'Unfavourite' : 'Favourite' }}
+            </button>
+
+            <button
+                type="button"
+                class="button button--danger button--small"
+                id="detail-remove"
+                (click)="onRemove()"
+            >
+                Remove
+            </button>
+
+            <a class="button button--quiet button--small" routerLink="/contacts">
+                Back to the list
+            </a>
+        </div>
+    </app-panel>
+} @else {
+    <!-- The route matched and the record does not exist. Not a 404 page: the
+         address was well formed and this app simply has nothing under that id,
+         which is worth saying differently because the thing to do about it is
+         different. -->
+    <div class="empty-state" id="no-such-contact">
+        <h2>No such contact</h2>
+        <p class="text-muted">
+            Nothing in this list has the id <code>{{ id() }}</code>. It may have
+            been removed since the link was made.
+        </p>
+        <a class="button button--small" routerLink="/contacts">Back to the contacts</a>
+    </div>
+}

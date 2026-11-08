@@ -1,0 +1,646 @@
+/* Week 9 global stylesheet.
+
+   The same Portfolio v2 tokens from Day 10, now in their third framework.
+   Listed in angular.json's `styles` array rather than imported from code,
+   which is the one place Angular's build differs from Vite's here.
+
+   These are the GLOBAL styles. Anything component-specific goes in that
+   component's own .css file, where Angular scopes it automatically - which is
+   the main thing that changes about writing CSS this week. The tokens and the
+   shared classes stay global on purpose, because scoping a design token would
+   defeat it. */
+
+:root {
+    --font-body: "Segoe UI", Arial, Helvetica, sans-serif;
+    --font-mono: "Courier New", Courier, monospace;
+
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 16px;
+    --space-4: 24px;
+    --space-5: 32px;
+
+    --color-page:        #f4f6f8;
+    --color-surface:     #ffffff;
+    --color-surface-alt: #eef3f9;
+    --color-border:      #d8dee6;
+    --color-text:        #1c2126;
+    --color-text-muted:  #5a646e;
+    --color-brand:       #17457f;
+    --color-brand-dark:  #0f3160;
+    --color-focus:       #b4530a;
+    --color-danger:      #9b2226;
+
+    --color-unread:   #5a646e;
+    --color-reading:  #17457f;
+    --color-finished: #1d6b3f;
+
+    --radius: 6px;
+    --shadow: 0 1px 2px rgb(28 33 38 / 0.08);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    box-sizing: border-box;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: inherit;
+}
+
+body {
+    font-family: var(--font-body);
+    line-height: 1.6;
+    color: var(--color-text);
+    background-color: var(--color-page);
+    padding: var(--space-3);
+}
+
+.page {
+    max-width: 72ch;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+/* ---------- typography ---------- */
+
+h1 {
+    font-size: clamp(1.5rem, 1.2rem + 1.5vw, 2rem);
+    line-height: 1.2;
+    margin-bottom: var(--space-2);
+}
+
+h2 {
+    font-size: 1.125rem;
+    line-height: 1.25;
+    margin-bottom: var(--space-3);
+}
+
+h3 {
+    font-size: 1rem;
+    line-height: 1.3;
+}
+
+p {
+    margin-bottom: var(--space-2);
+}
+
+code {
+    font-family: var(--font-mono);
+    font-size: 0.875em;
+    background-color: var(--color-surface-alt);
+    padding: 0 var(--space-1);
+    border-radius: 3px;
+}
+
+.text-muted { color: var(--color-text-muted); }
+.text-sm    { font-size: 0.875rem; }
+
+/* ---------- regions ---------- */
+
+.app-header,
+.panel,
+.app-footer {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    padding: var(--space-4);
+    box-shadow: var(--shadow);
+}
+
+.app-footer { padding: var(--space-3) var(--space-4); }
+
+main {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+/* ---------- summary tiles ---------- */
+
+.summary {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(120px, 100%), 1fr));
+    gap: var(--space-2);
+    margin-bottom: var(--space-4);
+}
+
+.summary__tile {
+    background-color: var(--color-surface-alt);
+    border-radius: var(--radius);
+    padding: var(--space-2) var(--space-3);
+    display: flex;
+    flex-direction: column;
+}
+
+.summary__label {
+    font-size: 0.8125rem;
+    color: var(--color-text-muted);
+}
+
+.summary__value {
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+/* ---------- book cards ---------- */
+
+.book-grid {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr));
+    gap: var(--space-3);
+}
+
+.book-card {
+    border: 1px solid var(--color-border);
+    border-left: 4px solid var(--color-unread);
+    border-radius: var(--radius);
+    padding: var(--space-3);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+}
+
+.book-card--reading  { border-left-color: var(--color-reading); }
+.book-card--finished { border-left-color: var(--color-finished); }
+
+.book-card__title { margin-bottom: var(--space-1); }
+
+.book-card__meta {
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+    margin-bottom: 0;
+}
+
+.book-card__note {
+    font-size: 0.875rem;
+    font-style: italic;
+    margin-bottom: 0;
+}
+
+.book-card__status { margin: var(--space-1) 0 0; }
+
+.badge {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    padding: 2px var(--space-2);
+    border-radius: 999px;
+    color: #fff;
+    background-color: var(--color-unread);
+}
+
+.badge--reading  { background-color: var(--color-reading); }
+.badge--finished { background-color: var(--color-finished); }
+
+/* ---------- controls ---------- */
+
+.toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    align-items: flex-end;
+    margin-bottom: var(--space-3);
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    flex: 1 1 14ch;
+    min-width: 0;
+}
+
+label {
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+input,
+select,
+textarea {
+    font: inherit;
+    font-size: 0.9375rem;
+    padding: var(--space-2);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    background-color: var(--color-surface);
+    color: inherit;
+    width: 100%;
+}
+
+textarea { resize: vertical; }
+
+.button {
+    font: inherit;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    padding: var(--space-2) var(--space-3);
+    border: 1px solid var(--color-brand);
+    border-radius: var(--radius);
+    background-color: var(--color-brand);
+    color: #fff;
+    cursor: pointer;
+}
+
+.button:hover { background-color: var(--color-brand-dark); }
+
+.button:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.button--quiet {
+    background-color: transparent;
+    color: var(--color-brand);
+}
+
+.button--quiet:hover { background-color: var(--color-surface-alt); }
+
+.button--danger {
+    background-color: transparent;
+    border-color: var(--color-danger);
+    color: var(--color-danger);
+}
+
+.button--danger:hover { background-color: #fdf1f1; }
+
+.button--small {
+    font-size: 0.8125rem;
+    padding: var(--space-1) var(--space-2);
+}
+
+/* Focus is visible on everything, and `outline: none` appears nowhere.
+   Day 10's checklist, still applying. */
+:is(a, button, input, select, textarea):focus-visible {
+    outline: 3px solid var(--color-focus);
+    outline-offset: 2px;
+}
+
+.filters {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-bottom: var(--space-3);
+}
+
+/* aria-pressed is the state, so the style hangs off the attribute rather than
+   off a class. One source of truth for "this filter is active". */
+.filter[aria-pressed="true"] {
+    background-color: var(--color-brand);
+    border-color: var(--color-brand);
+    color: #fff;
+}
+
+.form-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-top: var(--space-3);
+}
+
+/* ---------- states ---------- */
+
+.empty-state {
+    background-color: var(--color-surface-alt);
+    border-radius: var(--radius);
+    padding: var(--space-3);
+    color: var(--color-text-muted);
+    margin-bottom: 0;
+}
+
+.status {
+    background-color: var(--color-surface-alt);
+    border-left: 4px solid var(--color-brand);
+    border-radius: var(--radius);
+    padding: var(--space-2) var(--space-3);
+    margin-bottom: var(--space-3);
+    font-size: 0.9375rem;
+}
+
+.status--error {
+    border-left-color: var(--color-danger);
+    color: var(--color-danger);
+}
+
+.field-error {
+    font-size: 0.875rem;
+    color: var(--color-danger);
+    margin-bottom: 0;
+}
+
+input[aria-invalid="true"],
+textarea[aria-invalid="true"] {
+    border-color: var(--color-danger);
+}
+
+/* ---------- notes list ---------- */
+
+.notes-list dt {
+    font-weight: 600;
+    margin-top: var(--space-3);
+}
+
+.notes-list dd {
+    margin-left: 0;
+    color: var(--color-text-muted);
+    font-size: 0.9375rem;
+}
+
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
+
+/* ---------- Day 33: skeletons, errors, demos ---------- */
+
+.skeleton {
+    gap: var(--space-2);
+}
+
+.skeleton__line {
+    height: 0.75rem;
+    border-radius: 3px;
+    background-color: var(--color-surface-alt);
+    animation: pulse 1.4s ease-in-out infinite;
+}
+
+.skeleton__line--short { width: 45%; }
+.skeleton__line--long  { width: 85%; }
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50%      { opacity: 0.45; }
+}
+
+/* Anyone who has asked their system for less motion gets none. Day 18. */
+@media (prefers-reduced-motion: reduce) {
+    .skeleton__line {
+        animation: none;
+    }
+}
+
+.error-box {
+    border: 1px solid var(--color-danger);
+    border-left-width: 4px;
+    border-radius: var(--radius);
+    padding: var(--space-3);
+    background-color: #fdf1f1;
+}
+
+.error-box__title {
+    font-weight: 600;
+    margin-bottom: var(--space-1);
+}
+
+.error-box__body {
+    font-size: 0.9375rem;
+    margin-bottom: var(--space-2);
+}
+
+.demo {
+    border-top: 1px solid var(--color-border);
+    padding-top: var(--space-3);
+    margin-top: var(--space-3);
+}
+
+.demo:first-child {
+    border-top: none;
+    padding-top: 0;
+    margin-top: 0;
+}
+
+.demo h3 {
+    margin-bottom: var(--space-2);
+}
+
+/* ---------- Day 36: navigation ---------- */
+
+.nav {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin: var(--space-3) 0;
+    padding: 0;
+}
+
+.nav__link {
+    display: inline-block;
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius);
+    text-decoration: none;
+    color: var(--color-brand);
+    font-weight: 600;
+    font-size: 0.9375rem;
+}
+
+.nav__link:hover {
+    background-color: var(--color-surface-alt);
+}
+
+/* The active link is styled from aria-current, which NavLink sets itself, so
+   the accessible state and the visible state cannot disagree. */
+.nav__link[aria-current="page"] {
+    background-color: var(--color-brand);
+    color: #fff;
+}
+
+/* Visible only when focused. First in the tab order. */
+.skip-link {
+    position: absolute;
+    left: -9999px;
+    top: 0;
+    background-color: var(--color-surface);
+    color: var(--color-brand);
+    padding: var(--space-2) var(--space-3);
+    border: 2px solid var(--color-brand);
+    border-radius: var(--radius);
+    z-index: 10;
+}
+
+.skip-link:focus {
+    left: var(--space-3);
+    top: var(--space-3);
+}
+
+.notes-list dd a,
+.book-card__title a {
+    color: var(--color-brand);
+}
+
+/* ---------- Day 38: the error summary ---------- */
+
+.error-summary {
+    border: 2px solid var(--color-danger);
+    border-radius: var(--radius);
+    padding: var(--space-3);
+    margin-bottom: var(--space-3);
+}
+
+/* The focus ring on the summary matters: focus is moved here by script, and
+   without a visible ring a sighted keyboard user has no idea where they are. */
+.error-summary:focus-visible {
+    outline: 3px solid var(--color-focus);
+    outline-offset: 2px;
+}
+
+.error-summary__title {
+    color: var(--color-danger);
+    margin-bottom: var(--space-2);
+}
+
+.error-summary__list {
+    margin: 0;
+    padding-left: var(--space-4);
+}
+
+.error-summary__list a {
+    color: var(--color-danger);
+}
+
+/* A focused heading after a navigation. The outline is deliberately subtle -
+   it is confirmation of where focus went, not a control to be clicked. */
+h2:focus-visible {
+    outline: 2px dashed var(--color-focus);
+    outline-offset: 4px;
+}
+
+/* Day 38: the contrast pass.
+
+   I measured the whole palette rather than eyeballing it, and the result was
+   not what I expected: everything already passed AA, including the two I
+   assumed were the problem.
+
+       text-muted  #5a646e on #ffffff   6.03:1
+       text-muted  #5a646e on #eef3f9   5.40:1
+       body        #1c2126 on #ffffff  16.22:1
+       brand       #17457f on #ffffff   9.57:1
+       white on brand button            9.57:1
+       white on the unread badge        6.03:1
+       white on the finished badge      6.51:1
+       danger on the error box          7.18:1
+
+   So this is not a compliance fix and I am not going to write it up as one.
+   It is a readability change: .summary__label is 0.8125rem, and the muted tone
+   at that size was the one thing on the page I could not read comfortably at
+   arm's length. AA's 4.5:1 is a floor, not a target.
+
+       text-muted  #4a535c on #ffffff   7.83:1
+       text-muted  #4a535c on #eef3f9   7.02:1
+
+   Worth recording that the thing I was sure was broken was fine, and I only
+   know that because I calculated it instead of guessing. */
+:root {
+    --color-text-muted: #4a535c;
+}
+
+/* ---------------------------------------------------------------------------
+   Day 51 - the nav, the detail list and a link that looks like a tag.
+
+   Global rather than component-scoped, because the nav lives in the shell and
+   the detail list is a pattern two pages will want. Day 43's rule: scope what
+   belongs to one component, keep what is shared.
+   --------------------------------------------------------------------------- */
+
+.nav ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1);
+    list-style: none;
+    margin-top: var(--space-3);
+}
+
+.nav__link {
+    display: inline-block;
+    padding: var(--space-1) var(--space-3);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    background-color: var(--color-surface);
+    color: var(--color-brand);
+    text-decoration: none;
+    font-size: 0.95rem;
+}
+
+.nav__link:hover {
+    background-color: var(--color-surface-alt);
+}
+
+/* The active link is not identified by colour alone - it is also the only one
+   with aria-current, and it carries a weight change. Day 38's rule about
+   colour never being the only signal. */
+.nav__link--active {
+    background-color: var(--color-brand);
+    border-color: var(--color-brand);
+    color: #ffffff;
+    font-weight: 600;
+}
+
+.nav__link:focus-visible {
+    outline: 3px solid var(--color-focus);
+    outline-offset: 2px;
+}
+
+.detail {
+    display: grid;
+    grid-template-columns: minmax(6rem, 10rem) 1fr;
+    gap: var(--space-2) var(--space-3);
+    margin: var(--space-3) 0;
+}
+
+.detail dt {
+    font-weight: 600;
+    color: var(--color-text-muted);
+}
+
+.detail dd {
+    margin: 0;
+}
+
+.tag--link {
+    display: inline-block;
+    color: var(--color-brand);
+    text-decoration: none;
+}
+
+.tag--link:hover {
+    text-decoration: underline;
+}
+
+.tag--link:focus-visible {
+    outline: 3px solid var(--color-focus);
+    outline-offset: 2px;
+}
+
+.book-card__title a {
+    color: var(--color-text);
+    text-decoration: none;
+}
+
+.book-card__title a:hover {
+    text-decoration: underline;
+}
+
+.book-card__title a:focus-visible {
+    outline: 3px solid var(--color-focus);
+    outline-offset: 2px;
+}

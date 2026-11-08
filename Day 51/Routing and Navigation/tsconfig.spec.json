@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    /* The specs run under Vitest in jsdom, so they do get those globals. */
+    "types": ["vitest/globals", "node"],
+    "outDir": "./out-tsc/spec",
+    "composite": true
+  },
+  "include": ["src/**/*.spec.ts", "src/**/*.d.ts"]
+}

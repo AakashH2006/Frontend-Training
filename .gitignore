@@ -6,6 +6,10 @@ dist/
 build/
 .vite/
 
+# TypeScript project-reference output (tsc -b writes this; the typecheck script
+# only needs the errors, not the emit).
+out-tsc/
+
 # Test and coverage output.
 coverage/
 .nyc_output/
