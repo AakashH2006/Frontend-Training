@@ -1,0 +1,114 @@
+@if (loading()) {
+    <p class="status text-sm" id="detail-loading" role="status" aria-live="polite">
+        Loading the contact&hellip;
+    </p>
+} @else if (failed()) {
+    <div class="empty-state" id="detail-error">
+        <h2>The contact could not be loaded</h2>
+        <p class="text-muted">{{ contacts.error()?.message }}</p>
+        <button type="button" class="button button--small" id="retry" (click)="onRetry()">
+            Try again
+        </button>
+    </div>
+} @else if (contact(); as contact) {
+    <app-panel [heading]="contact.name" headingId="detail">
+        <a
+            panel-actions
+            class="button button--small"
+            [routerLink]="['/contacts', contact.id, 'edit']"
+        >
+            Edit
+        </a>
+
+        <dl class="detail" id="detail-fields">
+            <dt>Group</dt>
+            <dd>{{ groupLabels[contact.group] }}</dd>
+
+            <dt>Email</dt>
+            <!-- Two optional fields, so two places that need a rendering for
+                 "not given". An empty <dd> would look like a bug. -->
+            <dd>{{ contact.email ?? 'Not given' }}</dd>
+
+            <dt>Phone</dt>
+            <dd>{{ contact.phone ?? 'Not given' }}</dd>
+
+            <dt>Tags</dt>
+            <dd>
+                @if (contact.tags.length > 0) {
+                    <ul class="tags">
+                        @for (tag of contact.tags; track tag) {
+                            <!-- A tag is a link to the filtered list, which is
+                                 only possible because the search is in the
+                                 URL. This is the payoff for Day 36's rule and
+                                 the first time I have built something that
+                                 needed it. -->
+                            <li>
+                                <a
+                                    class="tag tag--link"
+                                    routerLink="/contacts"
+                                    [queryParams]="{ q: tag }"
+                                >{{ tag }}</a>
+                            </li>
+                        }
+                    </ul>
+                } @else {
+                    None
+                }
+            </dd>
+
+            <dt>Note</dt>
+            <dd>{{ contact.note ?? 'No note' }}</dd>
+
+            <dt>Added</dt>
+            <dd>{{ contact.addedAt.slice(0, 10) }}</dd>
+
+            <dt>Re-checked</dt>
+            <!-- The poll's counter, on screen so that "it stops when you
+                 leave" is something a probe can check rather than something I
+                 assert. -->
+            <dd id="poll-count">{{ polled() }} times</dd>
+        </dl>
+
+        <div class="form-actions">
+            <button
+                type="button"
+                class="button button--quiet button--small"
+                id="detail-favourite"
+                [attr.aria-pressed]="contact.favourite"
+                (click)="onToggleFavourite()"
+            >
+                {{ contact.favourite ? 'Unfavourite' : 'Favourite' }}
+            </button>
+
+            <button
+                type="button"
+                class="button button--danger button--small"
+                id="detail-remove"
+                (click)="onRemove()"
+            >
+                Remove
+            </button>
+
+            <a class="button button--quiet button--small" routerLink="/contacts">
+                Back to the list
+            </a>
+        </div>
+    </app-panel>
+} @else {
+    <!-- The route matched and the record does not exist.
+
+         Day 52 note: this branch is now only reachable once `status` is
+         'ready'. Before that it was reachable while the first request was
+         still in flight, which made it a lie. Not a 404 page: the
+         address was well formed and this app simply has nothing under that id,
+         which is worth saying differently because the thing to do about it is
+         different. -->
+    <div class="empty-state" id="no-such-contact">
+        <h2>No such contact</h2>
+        <p class="text-muted">
+            Nothing in this list has the id <code>{{ id() }}</code>. It may have
+            been removed since the link was made.
+        </p>
+        <a class="button button--small" routerLink="/contacts">Back to the contacts</a>
+    </div>
+}

@@ -1,0 +1,70 @@
+<app-panel heading="Find somebody" headingId="directory">
+    <p class="text-sm text-muted" id="directory-size">
+        @if (size(); as total) {
+            Searching {{ total }} people in the staff directory.
+        } @else {
+            Loading the directory&hellip;
+        }
+    </p>
+
+    <div class="field">
+        <label for="directory-query">Search the directory</label>
+        <input
+            id="directory-query"
+            type="search"
+            autocomplete="off"
+            placeholder="name, title or email"
+            [value]="directory.query()"
+            (input)="onInput($event)"
+            aria-describedby="directory-hint"
+        />
+        <p class="text-sm text-muted" id="directory-hint">
+            Two letters or more. The directory is on the server, so this asks it.
+        </p>
+    </div>
+
+    <!-- Four states, and the order of these branches is the design.
+
+         "too short" comes before "searching", because a one-letter query is
+         not a request in progress - it is a request this app declined to
+         make, and saying "Searching..." would be a lie. -->
+    @if (directory.tooShort()) {
+        <p class="status text-sm" id="directory-status">Keep typing&hellip;</p>
+    } @else if (directory.searching()) {
+        <p class="status text-sm" id="directory-status" role="status" aria-live="polite">
+            Searching&hellip;
+        </p>
+    } @else if (directory.error(); as problem) {
+        <p class="status status--error text-sm" id="directory-error" role="alert">{{ problem }}</p>
+    } @else if (directory.query().trim().length > 0) {
+        <p class="status text-sm" id="directory-status" role="status" aria-live="polite">
+            {{ directory.results().length }}
+            {{ directory.results().length === 1 ? 'match' : 'matches' }} for
+            &ldquo;{{ directory.query().trim() }}&rdquo;.
+        </p>
+    }
+
+    <ul class="directory" id="directory-results">
+        @for (entry of directory.results(); track entry.id) {
+            <li class="directory__row">
+                <div>
+                    <p class="directory__name">{{ entry.name }}</p>
+                    <p class="text-sm text-muted">{{ entry.title }} &middot; {{ entry.email }}</p>
+                </div>
+
+                @if (alreadyAContact(entry)) {
+                    <span class="badge">Already a contact</span>
+                } @else {
+                    <button
+                        type="button"
+                        class="button button--small"
+                        [disabled]="adding() === entry.id"
+                        (click)="onAdd(entry)"
+                    >
+                        {{ adding() === entry.id ? 'Adding…' : 'Add to contacts' }}
+                    </button>
+                }
+            </li>
+        }
+    </ul>
+</app-panel>

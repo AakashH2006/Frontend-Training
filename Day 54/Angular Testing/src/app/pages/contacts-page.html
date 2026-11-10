@@ -1,0 +1,142 @@
+<!-- Day 53: the directory search, above the list.
+
+     It is a sibling rather than something inside the list panel, because it
+     searches a different thing: the list below is the contacts this app owns,
+     and this searches people it does not have. Putting them in one panel with
+     two search boxes was the first version and it was baffling to use. -->
+<app-directory-search />
+
+<app-panel heading="Your contacts" headingId="list">
+    <a panel-actions class="button button--small" routerLink="/contacts/new">Add a contact</a>
+
+    @if (contacts.status() === 'loading') {
+        <!-- A real loading state, not a spinner over the old data.
+
+             The fake backend's 120ms is enough that this renders on every
+             cold load, which is the only reason I trust it exists. A backend
+             that answers in 0ms hides every mistake in here. -->
+        <p class="status text-sm" id="list-loading" role="status" aria-live="polite">
+            Loading contacts&hellip;
+        </p>
+    } @else if (contacts.status() === 'failed') {
+        <!-- The failure, in the user's words rather than the protocol's, with
+             the one thing they can do about it. `api-error.ts` chose the
+             wording; this template chose the button. -->
+        <div class="empty-state" id="list-error">
+            <h3>The contacts could not be loaded</h3>
+            <p class="text-muted">{{ contacts.error()?.message }}</p>
+            <button type="button" class="button button--small" id="retry" (click)="contacts.refresh()">
+                Try again
+            </button>
+        </div>
+    } @else {
+        @if (contacts.skipped() > 0) {
+            <!-- Day 47's message, from a different source. The server sent
+                 five rows and this client could read four; saying so is the
+                 difference between a missing contact and a mystery. -->
+            <p class="status status--error text-sm" id="skipped" role="status">
+                {{ contacts.skipped() }}
+                {{ contacts.skipped() === 1 ? 'row' : 'rows' }} from the server
+                {{ contacts.skipped() === 1 ? 'was' : 'were' }} in a shape this app
+                does not understand, and {{ contacts.skipped() === 1 ? 'was' : 'were' }}
+                skipped.
+            </p>
+        }
+
+        <ul class="summary" aria-label="Group summary">
+            <app-stat label="Contacts" [value]="contacts.total()" />
+            <app-stat label="Favourites" [value]="contacts.favourites()" />
+            @for (group of groups; track group) {
+                <app-stat [label]="groupLabels[group]" [value]="contacts.counts()[group]" />
+            }
+        </ul>
+
+        <div class="toolbar">
+            <div class="field">
+                <label for="list-query">Search</label>
+                <input
+                    id="list-query"
+                    type="search"
+                    placeholder="name, email, phone or tag"
+                    autocomplete="off"
+                    [value]="contacts.query()"
+                    (input)="onQuery($event)"
+                />
+            </div>
+
+            <div class="field">
+                <label for="list-sort">Sort by</label>
+                <select id="list-sort" [value]="contacts.sort()" (change)="onSort($event)">
+                    @for (option of sorts; track option) {
+                        <option [value]="option">{{ sortLabels[option] }}</option>
+                    }
+                </select>
+            </div>
+        </div>
+
+        <ul class="filters">
+            @for (option of filters; track option) {
+                <li>
+                    <button
+                        type="button"
+                        class="button button--quiet button--small filter"
+                        [attr.aria-pressed]="option === contacts.filter()"
+                        (click)="onFilter(option)"
+                    >
+                        {{ filterLabels[option] }}
+                    </button>
+                </li>
+            }
+        </ul>
+
+        @let shown = contacts.visible().length;
+
+        <p class="text-sm text-muted" id="shown-count">
+            Showing {{ shown }} of {{ contacts.total() }}.
+            <!-- A second piece of status, because a list that is quietly being
+                 written to looks identical to one that is not. -->
+            @if (contacts.busy()) {
+                <span id="busy">Saving&hellip;</span>
+            }
+        </p>
+
+        <ul class="book-grid">
+            @for (contact of contacts.visible(); track contact.id) {
+                <li>
+                    <app-contact-card
+                        [contact]="contact"
+                        [detailLink]="['/contacts', contact.id]"
+                        (edit)="onEdit($event)"
+                        (remove)="onRemove($event)"
+                        (toggleFavourite)="onToggleFavourite(contact)"
+                    />
+                </li>
+            } @empty {
+                <li>
+                    <app-empty-state
+                        [message]="
+                            contacts.filtering()
+                                ? 'No contact matches that search.'
+                                : 'The server has no contacts yet.'
+                        "
+                    >
+                        @if (contacts.filtering()) {
+                            <button
+                                type="button"
+                                class="button button--small"
+                                id="clear-filters"
+                                (click)="onClearFilters()"
+                            >
+                                Clear the filters
+                            </button>
+                        } @else {
+                            <a class="button button--small" routerLink="/contacts/new">
+                                Add a contact
+                            </a>
+                        }
+                    </app-empty-state>
+                </li>
+            }
+        </ul>
+    }
+</app-panel>

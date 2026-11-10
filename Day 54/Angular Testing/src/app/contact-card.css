@@ -1,0 +1,18 @@
+:host { display: block; }
+
+.tags {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1);
+    padding: 0;
+    margin: var(--space-1) 0;
+}
+
+.tag {
+    font-size: 0.75rem;
+    background-color: var(--color-surface-alt);
+    border-radius: 999px;
+    padding: 2px var(--space-2);
+    color: var(--color-text-muted);
+}

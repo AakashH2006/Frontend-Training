@@ -1,0 +1,41 @@
+@if (loading()) {
+    <p class="status text-sm" id="form-loading" role="status" aria-live="polite">
+        Loading&hellip;
+    </p>
+} @else if (missing()) {
+    <div class="empty-state" id="no-such-contact">
+        <h2>No such contact</h2>
+        <p class="text-muted">
+            There is nothing to edit under the id <code>{{ id() }}</code>.
+        </p>
+        <a class="button button--small" routerLink="/contacts">Back to the contacts</a>
+    </div>
+} @else {
+    <app-panel
+        [heading]="editing() ? 'Editing ' + editing()!.name : 'Add a contact'"
+        headingId="form"
+    >
+        @if (serverError(); as problem) {
+            <!-- The server's refusal, where the user is looking.
+
+                 `role="alert"` rather than `role="status"`: this is the result
+                 of pressing a button and it should interrupt, which is the
+                 distinction Day 38 drew between the two and the first time
+                 since then that I have had a genuine alert. -->
+            <p class="status status--error" id="server-error" role="alert">
+                {{ problem }}
+            </p>
+        }
+
+        <!-- Unchanged from Day 50 except for what the parent does with the two
+             outputs: both are now a navigation, and the form has no idea. -->
+        <app-contact-form
+            [existing]="contacts.contacts()"
+            [knownTags]="contacts.allTags()"
+            [submitLabel]="editing() ? 'Save changes' : 'Add contact'"
+            [cancelLabel]="editing() ? 'Cancel' : 'Back to the list'"
+            (save)="onSave($event)"
+            (cancel)="onCancel()"
+        />
+    </app-panel>
+}
