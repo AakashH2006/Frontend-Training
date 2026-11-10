@@ -1,0 +1,30 @@
+/* Scoped to this component.
+
+   `:host` is the one selector that reaches the component's own element - the
+   <app-panel> tag itself, which is otherwise unstyleable from inside. Without
+   it the element is a display:inline wrapper around a block section, which is
+   the first layout oddity I hit in Angular. */
+:host {
+    display: block;
+}
+
+.panel__head {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    align-items: baseline;
+    justify-content: space-between;
+}
+
+.panel__actions {
+    display: flex;
+    gap: var(--space-2);
+}
+
+/* `:empty` so the actions wrapper collapses when nothing was projected into
+   it. The alternative is an @if around it, which needs the component to know
+   whether the caller passed anything - and that is awkward to ask. CSS
+   answers it without the component having to. */
+.panel__actions:empty {
+    display: none;
+}
