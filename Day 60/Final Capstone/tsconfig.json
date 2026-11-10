@@ -1,0 +1,85 @@
+/* Day 41 - the compiler options.
+
+   This is the CLI's generated tsconfig with `strict` added.
+
+   That omission surprised me: `ng new` in Angular 22 turns on
+   noImplicitOverride, noPropertyAccessFromIndexSignature, noImplicitReturns
+   and noFallthroughCasesInSwitch - but not `strict`. So `strictNullChecks` and
+   `noImplicitAny` are off by default, which after Weeks 5 to 8 is not
+   something I am prepared to work without.
+
+   Added here, plus the four extras this repo has used since Day 21. */
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    /* The whole strict family. Everything below this line in the generated
+       file is in addition to it rather than instead of it. */
+    "strict": true,
+
+    /* The CLI's own choices, kept. */
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+
+    /* This repo's additions, from Week 5. */
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+
+    "skipLibCheck": true,
+    "isolatedModules": true,
+
+    /* Required for Angular's decorators - @Component, @Injectable. Angular is
+       the reason this repo has seen a decorator at all. */
+    "experimentalDecorators": true,
+
+    /* Emit calls to tslib's helpers instead of inlining a copy of each one
+       into every file that needs it. */
+    "importHelpers": true,
+
+    "target": "ES2022",
+
+    /* `lib` written out, which the CLI does not do.
+
+       Day 44 needed `toSorted` and got Day 24's error back, word for word:
+       "Property 'toSorted' does not exist... try changing the 'lib' compiler
+       option to 'es2023' or later." With no `lib`, it defaults from `target`,
+       which the CLI sets to ES2022.
+
+       `target` controls the syntax emitted; `lib` controls what the compiler
+       believes exists. They are set separately on purpose: ES2022 output with
+       ES2023 built-ins declared is exactly right for a browser that has
+       `toSorted` but where I still want the older output. */
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+
+    /* "preserve" is new to me: it leaves the import syntax alone and lets the
+       bundler decide, which is the same reasoning as Week 5's
+       moduleResolution: "bundler". */
+    "module": "preserve"
+  },
+  "angularCompilerOptions": {
+    "enableI18nLegacyMessageIdFormat": false,
+    /* Angular's own strictness, and both are worth having:
+
+       strictInjectionParameters - a constructor parameter whose type cannot be
+       resolved for injection is an error rather than a runtime failure.
+
+       strictInputAccessModifiers - an @Input cannot be private, which would
+       make it unsettable from a template. */
+    "strictInjectionParameters": true,
+    "strictInputAccessModifiers": true,
+    /* Type-checks expressions inside templates, including through inputs.
+       Without it, {{ book.titl }} in an HTML file is a runtime undefined. */
+    "strictTemplates": true
+  },
+  "files": [],
+  /* A solution-style tsconfig: no files of its own, just references to the two
+     real ones. `tsc -b` builds both, which is why the typecheck script uses
+     -b rather than --noEmit. */
+  "references": [
+    { "path": "./tsconfig.app.json" },
+    { "path": "./tsconfig.spec.json" }
+  ]
+}

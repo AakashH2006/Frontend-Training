@@ -1,0 +1,94 @@
+<app-panel heading="Find somebody" headingId="directory">
+    <p class="text-sm text-muted" id="directory-size">
+        @if (size(); as total) {
+            Searching {{ total }} people in the staff directory.
+        } @else {
+            Loading the directory&hellip;
+        }
+    </p>
+
+    <div class="field">
+        <label for="directory-query">Search the directory</label>
+        <input
+            id="directory-query"
+            type="search"
+            autocomplete="off"
+            placeholder="name, title or email"
+            [value]="directory.query()"
+            (input)="onInput($event)"
+            aria-describedby="directory-hint"
+        />
+        <p class="text-sm text-muted" id="directory-hint">
+            Two letters or more. The directory is on the server, so this asks it.
+        </p>
+    </div>
+
+    <!-- Four states, and the order of these branches is the design.
+
+         "too short" comes before "searching", because a one-letter query is
+         not a request in progress - it is a request this app declined to
+         make, and saying "Searching..." would be a lie.
+
+         DAY 57 took the `role="status"` and `aria-live="polite"` off these
+         paragraphs, which is the opposite of what an accessibility pass looks
+         like it should do. They were announcing nothing: each one is inside an
+         `@if`, so the element and its text arrive together and there is no
+         change to a watched region for a screen reader to read. Leaving them
+         would be two mechanisms claiming to do the same job, one of which
+         works - and if both ever did work, every search result would be read
+         out twice.
+
+         So these are ordinary visible text now, and the announcement is made
+         by this component's effect through the one live region in the shell.
+         The one exception below is `role="alert"`, which is kept and explained
+         there. -->
+    @if (directory.tooShort()) {
+        <p class="status text-sm" id="directory-status">Keep typing&hellip;</p>
+    } @else if (!directory.settled()) {
+        <!-- `!settled()` rather than `searching()`, and this branch is why the
+             count below was wrong for 250ms at a time since Day 53: between a
+             keystroke and the debounce expiring, `searching` is false and the
+             results still belong to the previous query, so the LAST branch ran
+             and rendered the old count against the new text. Nobody saw it.
+             The live region said it out loud, and then it was obvious. -->
+        <p class="status text-sm" id="directory-status">Searching&hellip;</p>
+    } @else if (directory.error(); as problem) {
+        <!-- `role="alert"` stays, and for a reason worth distinguishing from
+             the above: an alert is announced when it is INSERTED, not when its
+             text changes, so this is the one pattern that works from inside an
+             `@if`. It is assertive rather than polite, which is right for a
+             failure and wrong for a result count. The effect announces this
+             too, politely; a failure is the one thing worth saying twice. -->
+        <p class="status status--error text-sm" id="directory-error" role="alert">{{ problem }}</p>
+    } @else if (directory.query().trim().length > 0) {
+        <p class="status text-sm" id="directory-status">
+            {{ directory.results().length }}
+            {{ directory.results().length === 1 ? 'match' : 'matches' }} for
+            &ldquo;{{ directory.answeredQuery() }}&rdquo;.
+        </p>
+    }
+
+    <ul class="directory" id="directory-results">
+        @for (entry of directory.results(); track entry.id) {
+            <li class="directory__row">
+                <div>
+                    <p class="directory__name">{{ entry.name }}</p>
+                    <p class="text-sm text-muted">{{ entry.title }} &middot; {{ entry.email }}</p>
+                </div>
+
+                @if (alreadyAContact(entry)) {
+                    <span class="badge">Already a contact</span>
+                } @else {
+                    <button
+                        type="button"
+                        class="button button--small"
+                        [disabled]="adding() === entry.id"
+                        (click)="onAdd(entry)"
+                    >
+                        {{ adding() === entry.id ? 'Adding…' : 'Add to contacts' }}
+                    </button>
+                }
+            </li>
+        }
+    </ul>
+</app-panel>

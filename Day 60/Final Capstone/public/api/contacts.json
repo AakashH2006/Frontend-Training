@@ -1,0 +1,51 @@
+{
+  "contacts": [
+    {
+      "id": "c1",
+      "name": "Ada Lovelace",
+      "email": "ada@example.com",
+      "group": "work",
+      "tags": ["analytical engine", "maths"],
+      "favourite": true,
+      "note": "Met at the conference.",
+      "addedAt": "2026-10-01T09:00:00.000Z"
+    },
+    {
+      "id": "c2",
+      "name": "Grace Hopper",
+      "phone": "+1 555 0100",
+      "group": "work",
+      "tags": ["compilers"],
+      "favourite": false,
+      "addedAt": "2026-10-02T09:00:00.000Z"
+    },
+    {
+      "id": "c3",
+      "name": "Katherine Johnson",
+      "email": "katherine@example.com",
+      "phone": "+1 555 0144",
+      "group": "friends",
+      "tags": [],
+      "favourite": false,
+      "addedAt": "2026-10-03T09:00:00.000Z"
+    },
+    {
+      "id": "c4",
+      "name": "Jean Bartik",
+      "email": "jean@example.com",
+      "group": "work",
+      "tags": ["eniac"],
+      "favourite": true,
+      "addedAt": "2026-10-04T09:00:00.000Z"
+    },
+    {
+      "id": "c5",
+      "name": "Margaret Hamilton",
+      "email": "margaret@example.com",
+      "group": "colleagues",
+      "tags": ["apollo"],
+      "favourite": false,
+      "addedAt": "2026-10-05T09:00:00.000Z"
+    }
+  ]
+}

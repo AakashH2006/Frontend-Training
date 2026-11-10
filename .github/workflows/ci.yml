@@ -32,9 +32,9 @@ on:
   # pushing a commit whose only purpose is to trigger it.
   workflow_dispatch:
 
-# The app under test. Day 60 bumps this one line; the rest of the file is the
-# same for every day, which is the reason it is a variable and not a path
-# repeated in five places.
+# The app under test - the last day's, which is the one that gets deployed.
+# Day 60 bumped this one line and nothing else, which is what it was written
+# for: a path repeated in five places is a path that gets changed in four.
 #
 # The directory name has spaces in it. `working-directory` handles that
 # correctly without quoting, because YAML gives the value to the shell as a
@@ -42,7 +42,7 @@ on:
 # INTERPOLATED into a shell command needs quotes, which is why ${{ env.APP_DIR }}
 # appears inside double quotes below.
 env:
-  APP_DIR: Day 59/Production Build and Deployment
+  APP_DIR: Day 60/Final Capstone
 
 jobs:
   check:

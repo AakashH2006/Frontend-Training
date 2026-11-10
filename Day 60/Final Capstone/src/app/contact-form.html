@@ -1,0 +1,172 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+    <!-- The error summary from Day 38: focusable, every problem listed in
+         field order, each linked to its field. Third framework, same pattern,
+         and it is the single accessibility feature I have carried furthest. -->
+    @if (submitted() && form.invalid) {
+        @let count = problemCount();
+        <div class="error-summary" tabindex="-1" role="alert" id="summary">
+            <h3 class="error-summary__title">
+                There {{ count === 1 ? 'is 1 problem' : 'are ' + count + ' problems' }} with this form
+            </h3>
+            <ul class="error-summary__list">
+                @for (name of fieldOrder; track name) {
+                    @if (showError(name)) {
+                        <li><a [attr.href]="'#' + name">{{ errorFor(name) }}</a></li>
+                    }
+                }
+                @if (groupError(); as message) {
+                    <li>{{ message }}</li>
+                }
+            </ul>
+        </div>
+    }
+
+    <div class="field">
+        <label for="name">Name</label>
+        <input
+            id="name"
+            formControlName="name"
+            autocomplete="off"
+            [attr.aria-invalid]="showError('name')"
+            [attr.aria-describedby]="showError('name') ? 'name-error' : null"
+        />
+        @if (showError('name')) {
+            <p class="field-error" id="name-error">{{ errorFor('name') }}</p>
+        }
+    </div>
+
+    <div class="toolbar">
+        <div class="field">
+            <label for="email">Email</label>
+            <!-- `type="email"` is safe here, unlike Day 49's `type="number"`:
+                 Angular has no EmailValueAccessor, so the default string one
+                 is used and the control's declared type stays true. The
+                 attribute only changes the on-screen keyboard and the
+                 browser's own hint. -->
+            <input
+                id="email"
+                type="email"
+                formControlName="email"
+                autocomplete="off"
+                [attr.aria-invalid]="showError('email')"
+                [attr.aria-describedby]="showError('email') ? 'email-error' : null"
+            />
+            @if (showError('email')) {
+                <p class="field-error" id="email-error">{{ errorFor('email') }}</p>
+            }
+        </div>
+
+        <div class="field">
+            <label for="phone">Phone</label>
+            <input
+                id="phone"
+                type="tel"
+                formControlName="phone"
+                autocomplete="off"
+                [attr.aria-invalid]="showError('phone')"
+                [attr.aria-describedby]="showError('phone') ? 'phone-error' : null"
+            />
+            @if (showError('phone')) {
+                <p class="field-error" id="phone-error">{{ errorFor('phone') }}</p>
+            }
+        </div>
+
+        <div class="field">
+            <label for="group">Group</label>
+            <select id="group" formControlName="group">
+                @for (group of groups; track group) {
+                    <option [value]="group">{{ groupLabels[group] }}</option>
+                }
+            </select>
+        </div>
+    </div>
+
+    <div class="field">
+        <label for="tags">Tags</label>
+        <!-- A datalist of tags already in use, derived from the service. It
+             suggests without restricting, which is right for free text - a
+             <select> would make adding a new tag impossible. -->
+        <input
+            id="tags"
+            formControlName="tags"
+            list="known-tags"
+            placeholder="Comma separated"
+            autocomplete="off"
+            [attr.aria-invalid]="showError('tags')"
+            [attr.aria-describedby]="showError('tags') ? 'tags-error' : 'tags-count'"
+        />
+        <datalist id="known-tags">
+            @for (tag of knownTags(); track tag) {
+                <option [value]="tag"></option>
+            }
+        </datalist>
+        <p class="text-sm text-muted" id="tags-count">
+            {{ tagCount() }} / {{ maxTags }} tags &middot; duplicates are merged
+        </p>
+        @if (showError('tags')) {
+            <p class="field-error" id="tags-error">{{ errorFor('tags') }}</p>
+        }
+    </div>
+
+    <div class="field field--checkbox">
+        <!-- The checkbox's label wraps it, so the whole thing is a click
+             target without needing matching for/id - though both are here
+             anyway, because a wrapping label alone is not reliably announced
+             by every screen reader. -->
+        <label for="favourite">
+            <input id="favourite" type="checkbox" formControlName="favourite" />
+            Favourite
+        </label>
+    </div>
+
+    <div class="field">
+        <label for="note">Note</label>
+        <textarea
+            id="note"
+            rows="2"
+            formControlName="note"
+            [attr.aria-invalid]="showError('note')"
+            [attr.aria-describedby]="showError('note') ? 'note-error' : 'note-count'"
+        ></textarea>
+        <p class="text-sm text-muted" id="note-count">{{ noteLength() }} / 300</p>
+        @if (showError('note')) {
+            <p class="field-error" id="note-error">{{ errorFor('note') }}</p>
+        }
+    </div>
+
+    <!-- The group-level error belongs to the form rather than to a field, so
+         it sits outside any .field - and the summary lists it without a link,
+         because there is no single field to send focus to. -->
+    @if (groupError(); as message) {
+        <p class="field-error" id="group-error">{{ message }}</p>
+    }
+
+    <div class="form-actions">
+        <!-- Not [disabled]="form.invalid". A disabled submit gives no reason,
+             cannot be focused to find out why, and is simply broken when the
+             error is one the user cannot see. -->
+        <button type="submit" class="button" id="submit">{{ submitLabel() }}</button>
+
+        <!-- Day 51: the way out is now always there, because it is a
+             navigation rather than a mode change. Day 50 showed Cancel only
+             while editing, since there was nothing to cancel on an add form.
+             On a route there always is - leaving the page. -->
+        <button type="button" class="button button--quiet" id="cancel" (click)="onCancel()">
+            {{ cancelLabel() }}
+        </button>
+
+        @if (editingId() === null) {
+            <button type="button" class="button button--quiet" id="clear" (click)="clear()">
+                Clear
+            </button>
+        }
+    </div>
+
+    <p class="status text-sm" role="status" id="form-status">
+        @if (submitted() && form.invalid) {
+            {{ problemCount() }} {{ problemCount() === 1 ? 'problem' : 'problems' }} to fix.
+        } @else {
+            A name is required, plus either an email address or a phone number.
+        }
+    </p>
+</form>

@@ -1,0 +1,58 @@
+@if (loading()) {
+    <p class="status text-sm" id="form-loading" role="status" aria-live="polite">
+        Loading&hellip;
+    </p>
+} @else if (missing()) {
+    <div class="empty-state" id="no-such-contact">
+        <h2>No such contact</h2>
+        <p class="text-muted">
+            The server has nothing to edit under the id <code>{{ id() }}</code>.
+        </p>
+        <a class="button button--small" routerLink="/contacts">Back to the contacts</a>
+    </div>
+} @else if (failed()) {
+    <!-- Day 55: a failure that is not a 404 needs its own branch, because
+         there is nothing useful to do with a form whose subject never
+         arrived - and "no such contact" would be a confident wrong answer
+         about a server that is simply down. -->
+    <div class="empty-state" id="form-error">
+        <h2>That contact could not be loaded</h2>
+        <p class="text-muted">{{ outcomeError() }}</p>
+        <a class="button button--small" routerLink="/contacts">Back to the contacts</a>
+    </div>
+} @else {
+    <app-panel
+        [heading]="editing() ? 'Editing ' + editing()!.name : 'Add a contact'"
+        headingId="form"
+    >
+        @if (serverError(); as problem) {
+            <!-- The server's refusal, where the user is looking.
+
+                 `role="alert"` rather than `role="status"`: this is the result
+                 of pressing a button and it should interrupt, which is the
+                 distinction Day 38 drew between the two and the first time
+                 since then that I have had a genuine alert. -->
+            <p class="status status--error" id="server-error" role="alert">
+                {{ problem }}
+            </p>
+        }
+
+        <!-- Unchanged from Day 50 except for what the parent does with the two
+             outputs: both are now a navigation, and the form has no idea. -->
+        <!-- `existing` is now ONE PAGE of contacts, which makes the client's
+             uniqueness validator weaker than it looks and is worth stating
+             plainly: it can only object to an address it can see. Day 52
+             already demoted it from a rule to a convenience when the fake
+             server started enforcing uniqueness over rows the client cannot
+             parse; paging finishes the job. The server is the authority and
+             answers 409, which `serverError` above renders. -->
+        <app-contact-form
+            [existing]="contacts.contacts()"
+            [knownTags]="knownTags()"
+            [submitLabel]="editing() ? 'Save changes' : 'Add contact'"
+            [cancelLabel]="editing() ? 'Cancel' : 'Back to the list'"
+            (save)="onSave($event)"
+            (cancel)="onCancel()"
+        />
+    </app-panel>
+}

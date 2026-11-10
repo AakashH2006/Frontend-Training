@@ -1,0 +1,174 @@
+<div class="page">
+    <!-- Day 57: the first focusable thing in the document, and invisible until
+         it is focused.
+
+         Every page in this app puts a header, a nav, a notice bar and a
+         request log before the content. For a keyboard user that is six Tab
+         presses to reach the page on every single navigation, and there was no
+         way to skip them. This is the standard fix and it is three lines: an
+         anchor to the content's id, positioned off-screen until :focus-visible
+         brings it back.
+
+         It targets #main, which is also what RouteFocus focuses - one target,
+         so the two cannot drift apart. -->
+    <a class="skip-link" href="#main">Skip to the contacts</a>
+
+    <!-- Rendered once, never removed, and empty most of the time. The whole
+         point of it is being here BEFORE there is anything to say. -->
+    <app-announcer />
+
+    <header class="app-header">
+        <h1>Contacts</h1>
+        <!-- Day 60: this paragraph said "Day 57 - the accessibility pass" for
+             three days after Day 57 ended, through two commits that changed
+             the shell's behaviour and neither of which changed its words.
+
+             Nothing asserted it, because nothing rendered this file: the
+             shell was the one component with no spec, and it is the one
+             component whose visible text went stale. `app.spec.ts` now reads
+             this and the footer, so the next day that forgets fails. -->
+        <p class="text-muted" id="shell-subtitle">
+            Day 60 &mdash; the capstone. A routed app talking to a server, with
+            the tag suggestions finally coming from the whole collection rather
+            than from the page you happen to be on.
+        </p>
+
+        <nav class="nav" aria-label="Main">
+            <ul>
+                @for (item of nav; track item.link) {
+                    <li>
+                        <!-- `routerLinkActive` is a directive that adds a class
+                             while its link matches the current URL. React
+                             Router needs <NavLink> and a function that returns
+                             a className; this is the same job as an attribute
+                             on an ordinary link.
+
+                             `[routerLinkActiveOptions]="{ exact: true }"` on
+                             the first one, because without it /contacts stays
+                             active on /contacts/new - a prefix match, and
+                             exactly what NavLink's `end` prop is for. -->
+                        <a
+                            [routerLink]="item.link"
+                            routerLinkActive="nav__link--active"
+                            [routerLinkActiveOptions]="{ exact: item.exact }"
+                            #active="routerLinkActive"
+                            class="nav__link"
+                            [attr.aria-current]="active.isActive ? 'page' : null"
+                            >{{ item.label }}</a
+                        >
+                    </li>
+                }
+            </ul>
+        </nav>
+
+        <!-- Who the app thinks you are. Not a security statement: there is
+             no server, and `SessionService` is a name in localStorage. It is
+             here so that the guard's behaviour is explicable from the screen
+             rather than only from the console. -->
+        <p class="text-sm text-muted" id="session-state">
+            @if (session.signedIn()) {
+                Signed in as <strong>{{ session.name() }}</strong>.
+            } @else {
+                Not signed in. <a routerLink="/sign-in">Sign in</a> to reach
+                the settings.
+            }
+        </p>
+
+        <app-notice-bar />
+
+        <!-- The interceptor's output. Every request the app makes, with
+             the status it got and how long it took - including the ones the
+             fake backend answers without touching the network, which is the
+             point: the client cannot tell. -->
+        <details class="http-log" id="http-log">
+            <!-- Day 60: the `@if` used to be on its own lines, and its body's
+                 leading and trailing whitespace is RENDERED - so this summary
+                 read "Requests (1 , 1 in flight )" with a space before the
+                 comma and another before the bracket. HTML collapses runs of
+                 whitespace; it does not remove them. Nobody noticed for two
+                 days because nothing rendered this file. -->
+            <summary class="text-sm text-muted">Requests
+                ({{ log.entries().length }}@if (log.pending() > 0) {, {{ log.pending() }} in flight})
+            </summary>
+
+            <ul class="http-log__list text-sm">
+                @for (entry of log.entries(); track entry.id) {
+                    <li>
+                        <!-- The correlation id, which is only here because
+                             requestIdInterceptor sits above logInterceptor in
+                             the chain. Swap those two and this column goes
+                             blank while everything else keeps working - the
+                             cheapest demonstration of ordering I could put on
+                             a screen. -->
+                        @if (entry.requestId !== null) {
+                            <code class="http-log__id">{{ entry.requestId }}</code>
+                        }
+                        <code>{{ entry.method }} {{ entry.url }}</code>
+                        @if (entry.status === null) {
+                            <span class="http-log__pending">in flight</span>
+                        } @else {
+                            <span
+                                class="http-log__status"
+                                [class.http-log__status--bad]="entry.status >= 400 || entry.status === 0"
+                                >{{ entry.status }}</span
+                            >
+                            <span class="text-muted">{{ entry.ms }}ms</span>
+                        }
+                    </li>
+                } @empty {
+                    <li class="text-muted">No requests yet.</li>
+                }
+            </ul>
+        </details>
+
+    </header>
+
+    <!-- `tabindex="-1"` so that RouteFocus can focus this element
+         programmatically without putting it in the tab order. Without the
+         attribute, `main.focus()` is a silent no-op: a non-focusable element
+         accepts the call and does nothing, which is exactly the kind of bug
+         that looks like it works. -->
+    <main id="main" tabindex="-1">
+        <!-- Where the matched route renders.
+
+             React Router's <Outlet /> is the same idea, and the difference is
+             what surrounds it: there, the routes are elements inside a
+             <Routes> in this file. Here the route table is a separate module
+             and this is the only mention of routing in the shell's template,
+             which is why the shell no longer imports a single page. -->
+        <router-outlet />
+    </main>
+
+    <footer class="app-footer">
+        <p class="text-sm text-muted" id="shell-footer">
+            Day 60 &mdash; sixty days, twelve weeks, and the last limitation in
+            the Week 11 README closed by five lines of server.
+            Written up in <code>Day 60/notes.md</code>.
+        </p>
+    </footer>
+
+    <!-- Last in the shell, outside <main>, rendered once.
+
+         Outside the outlet because it asks whether the thing in the outlet may
+         be destroyed, and inside it the question would die with its subject.
+         Last in the DOM because it is an overlay and this is a hand-rolled
+         dialog with no portal: a stacking context above it in the tree would
+         put it behind the page it is covering.
+
+         DAY 58: `when`, which is the trigger for the thing nobody clicks.
+
+         This dialog exists for one question - "you have unsaved changes" - and
+         most sessions never ask it. `on interaction` cannot work here because
+         there is nothing to interact with: the dialog has no placeholder and
+         no trigger of its own, it appears because a guard asked a question.
+         `when` takes the same condition the component itself renders on, so
+         the chunk is fetched at the moment the question exists.
+
+         `prefetch on idle` is what makes that acceptable. Without it, the
+         first "are you sure" would wait for a network round trip before
+         appearing - a confirmation that lags behind the click it belongs to -
+         and the guard would be holding a navigation open while it happened. -->
+    @defer (when confirm.question() !== null; prefetch on idle) {
+        <app-confirm-dialog />
+    }
+</div>
