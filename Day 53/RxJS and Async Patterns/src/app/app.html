@@ -1,0 +1,92 @@
+<div class="page">
+    <header class="app-header">
+        <h1>Contacts</h1>
+        <p class="text-muted">
+            Day 53 &mdash; RxJS. A typeahead against a directory the client
+            never downloads, which is what finally made the operators
+            necessary.
+        </p>
+
+        <nav class="nav" aria-label="Main">
+            <ul>
+                @for (item of nav; track item.link) {
+                    <li>
+                        <!-- `routerLinkActive` is a directive that adds a class
+                             while its link matches the current URL. React
+                             Router needs <NavLink> and a function that returns
+                             a className; this is the same job as an attribute
+                             on an ordinary link.
+
+                             `[routerLinkActiveOptions]="{ exact: true }"` on
+                             the first one, because without it /contacts stays
+                             active on /contacts/new - a prefix match, and
+                             exactly what NavLink's `end` prop is for. -->
+                        <a
+                            [routerLink]="item.link"
+                            routerLinkActive="nav__link--active"
+                            [routerLinkActiveOptions]="{ exact: item.exact }"
+                            #active="routerLinkActive"
+                            class="nav__link"
+                            [attr.aria-current]="active.isActive ? 'page' : null"
+                            >{{ item.label }}</a
+                        >
+                    </li>
+                }
+            </ul>
+        </nav>
+
+        <app-notice-bar />
+
+        <!-- The interceptor's output. Every request the app makes, with
+             the status it got and how long it took - including the ones the
+             fake backend answers without touching the network, which is the
+             point: the client cannot tell. -->
+        <details class="http-log" id="http-log">
+            <summary class="text-sm text-muted">
+                Requests ({{ log.entries().length }}@if (log.pending() > 0) {
+                    , {{ log.pending() }} in flight
+                })
+            </summary>
+
+            <ul class="http-log__list text-sm">
+                @for (entry of log.entries(); track entry.id) {
+                    <li>
+                        <code>{{ entry.method }} {{ entry.url }}</code>
+                        @if (entry.status === null) {
+                            <span class="http-log__pending">in flight</span>
+                        } @else {
+                            <span
+                                class="http-log__status"
+                                [class.http-log__status--bad]="entry.status >= 400 || entry.status === 0"
+                                >{{ entry.status }}</span
+                            >
+                            <span class="text-muted">{{ entry.ms }}ms</span>
+                        }
+                    </li>
+                } @empty {
+                    <li class="text-muted">No requests yet.</li>
+                }
+            </ul>
+        </details>
+
+    </header>
+
+    <main id="main">
+        <!-- Where the matched route renders.
+
+             React Router's <Outlet /> is the same idea, and the difference is
+             what surrounds it: there, the routes are elements inside a
+             <Routes> in this file. Here the route table is a separate module
+             and this is the only mention of routing in the shell's template,
+             which is why the shell no longer imports a single page. -->
+        <router-outlet />
+    </main>
+
+    <footer class="app-footer">
+        <p class="text-sm text-muted">
+            Day 53 &mdash; debounce, distinct, switchMap, shareReplay,
+            toSignal, toObservable, takeUntilDestroyed. Written up in
+            <code>Day 53/notes.md</code>.
+        </p>
+    </footer>
+</div>
