@@ -1,0 +1,37 @@
+<!-- `[attr.aria-labelledby]` rather than `aria-labelledby`.
+
+     aria-labelledby is an ATTRIBUTE with no matching DOM property, so plain
+     property binding has nothing to set. `attr.` tells Angular to set the
+     attribute instead - and binding `null` removes it entirely, which is why
+     the ternary gives null rather than "".
+
+     That distinction (property vs attribute) does not exist in JSX, where
+     React maps the names for you. Day 43 is where it gets covered properly;
+     it appears here because a region needs its name. -->
+<section
+    class="panel"
+    [attr.aria-labelledby]="headingId() ? headingId() + '-heading' : null"
+>
+    <div class="panel__head">
+        <h2 [attr.id]="headingId() ? headingId() + '-heading' : null">{{ heading() }}</h2>
+
+        <!-- A NAMED slot. `select` takes a CSS selector, so anything the
+             caller marks with `panel-actions` lands here and everything else
+             falls through to the unnamed <ng-content> below.
+
+             This is Day 27's `actions` prop by another mechanism. React held
+             an element in a prop; Angular selects it out of the projected
+             markup. The Angular version needs no prop at all, which is tidier,
+             and is harder to discover from the outside. -->
+        <div class="panel__actions">
+            <ng-content select="[panel-actions]" />
+        </div>
+    </div>
+
+    <!-- The default slot: everything not claimed above.
+
+         Order matters here and it is not obvious: a selected <ng-content>
+         must come before the catch-all, or the catch-all swallows everything
+         first. -->
+    <ng-content />
+</section>
