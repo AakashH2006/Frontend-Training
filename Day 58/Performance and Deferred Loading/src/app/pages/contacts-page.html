@@ -1,0 +1,234 @@
+<!-- Day 53: the directory search, above the list.
+
+     It is a sibling rather than something inside the list panel, because it
+     searches a different thing: the list below is the contacts this app owns,
+     and this searches people it does not have. Putting them in one panel with
+     two search boxes was the first version and it was baffling to use.
+
+     DAY 58: deferred, and the bytes are the smaller half of why.
+
+     This panel is the heaviest thing on the page that most visits never touch
+     - a typeahead with its own service, its own pipeline and its own error
+     states - and it asks the server for the directory's size from its
+     constructor. So an eager render costs a chunk of JavaScript AND a request,
+     on every single view of the contacts list, for a feature that is used when
+     somebody is looking for a person this app does not have.
+
+     `on interaction` makes the placeholder the trigger: the button below is a
+     real button, and clicking or focusing it loads the panel. `prefetch on
+     idle` then fetches the chunk during the first quiet moment after load, so
+     by the time anybody presses the button the code is usually already there -
+     the saving is the request and the parse on the critical path, not the
+     download.
+
+     What this is NOT is `on viewport`, which is the trigger every @defer
+     example reaches for first. This panel is at the TOP of the page, so it is
+     in the viewport immediately and `on viewport` would be an eager render
+     with extra steps. The trigger has to match why the thing is deferred. -->
+@defer (on interaction; prefetch on idle) {
+    <app-directory-search />
+} @placeholder {
+    <div class="panel panel--plain directory-stub">
+        <button type="button" class="button button--small" id="directory-open">
+            Search the staff directory
+        </button>
+        <p class="text-sm text-muted">
+            12,000 people this app does not have. Loads when you ask for it.
+        </p>
+    </div>
+} @loading (after 100ms; minimum 200ms) {
+    <!-- `after 100ms` so that a chunk which arrives in 20ms never shows this
+         at all, and `minimum 200ms` so that one which arrives at 110ms does
+         not flash it for a frame. Both of those are about the same thing: a
+         loading state that appears and disappears faster than it can be read
+         is worse than no loading state, because the eye registers the movement
+         and not the words. -->
+    <p class="status text-sm" id="directory-loading">Loading the directory search&hellip;</p>
+}
+
+<app-panel heading="Your contacts" headingId="list">
+    <a panel-actions class="button button--small" routerLink="/contacts/new">Add a contact</a>
+
+    <!-- Day 55: the summary, the toolbar and the filters are OUTSIDE the
+         status branches now.
+
+         Day 52 put them inside the `ready` branch, which was right when a
+         load happened once: there was nothing to search until the data was
+         there. With the query in the URL, every keystroke is a load - and
+         controls that disappear while their own request is in flight are
+         unusable. The search box would vanish the moment it was typed in.
+
+         So the controls are always rendered and the LIST below them has the
+         three states. That is the same reasoning as the detail page's branch
+         order: show whatever is definitely true, and let the uncertain part be
+         the part that changes. -->
+    <ul class="summary" aria-label="Group summary">
+        <!-- Every number here now comes from the server's envelope rather
+             than from a computed over the loaded rows. `total` is how many
+             contacts exist, not how many are on screen - which is the whole
+             reason it had to be transmitted. -->
+        <app-stat label="Contacts" [value]="contacts.total()" />
+        <app-stat label="Favourites" [value]="contacts.favourites()" />
+        @for (group of groups; track group) {
+            <app-stat [label]="groupLabels[group]" [value]="contacts.counts()[group]" />
+        }
+    </ul>
+
+    <div class="toolbar">
+        <div class="field">
+            <label for="list-query">Search</label>
+            <!-- No [value] binding. The box owns its text and writes the URL
+                 250ms after the last keystroke; binding it to the service
+                 would put a 250ms-stale value back into the field the user is
+                 typing in. Day 34, in Angular. -->
+            <input
+                id="list-query"
+                type="search"
+                placeholder="name, email, phone or tag"
+                autocomplete="off"
+                [attr.value]="contacts.query().q"
+                (input)="onQuery($event)"
+            />
+        </div>
+
+        <div class="field">
+            <label for="list-sort">Sort by</label>
+            <select id="list-sort" [value]="contacts.query().sort" (change)="onSort($event)">
+                @for (option of sorts; track option) {
+                    <option [value]="option">{{ sortLabels[option] }}</option>
+                }
+            </select>
+        </div>
+    </div>
+
+    <ul class="filters">
+        @for (option of filters; track option) {
+            <li>
+                <button
+                    type="button"
+                    class="button button--quiet button--small filter"
+                    [attr.aria-pressed]="option === contacts.query().filter"
+                    (click)="onFilter(option)"
+                >
+                    {{ filterLabels[option] }}
+                </button>
+            </li>
+        }
+    </ul>
+
+    <p class="text-sm text-muted" id="shown-count">
+        <!-- Three numbers, because with paging they are three different
+             facts: how many are on this page, how many the query matched, and
+             how many exist. Day 52 could say "showing 4 of 5" from one array;
+             two of these are now things only the server knows. -->
+        Showing {{ contacts.contacts().length }} of {{ contacts.matched() }} matched,
+        {{ contacts.total() }} in total.
+
+        <!-- A second piece of status, because a list that is quietly being
+             written to looks identical to one that is not. -->
+        @if (contacts.busy()) {
+            <span id="busy">Saving&hellip;</span>
+        }
+
+        <!-- And a third, for a request in flight over a list that is still on
+             screen. The service's `scan` keeps the previous page visible while
+             the next one loads, which is kinder than blanking it and would
+             otherwise be indistinguishable from nothing happening. -->
+        @if (contacts.status() === 'loading' && contacts.contacts().length > 0) {
+            <span id="refreshing">Updating&hellip;</span>
+        }
+    </p>
+
+    @if (contacts.skipped() > 0) {
+        <!-- Day 47's message, from a different source. The server sent rows
+             this client could not read; saying so is the difference between a
+             missing contact and a mystery.
+
+             With paging this is now per-page, which is more honest than it
+             looks: the unreadable row is on exactly one page, and the message
+             appears on that page only. -->
+        <!-- `role="status"` removed for the same reason, and not replaced by
+             an announcement: a malformed row in the fixture is a message for
+             whoever is reading the data, not something to interrupt somebody
+             with on arrival. -->
+        <p class="status status--error text-sm" id="skipped">
+            {{ contacts.skipped() }}
+            {{ contacts.skipped() === 1 ? 'row' : 'rows' }} on this page
+            {{ contacts.skipped() === 1 ? 'was' : 'were' }} in a shape this app
+            does not understand, and {{ contacts.skipped() === 1 ? 'was' : 'were' }}
+            skipped.
+        </p>
+    }
+
+    @if (contacts.status() === 'loading' && contacts.contacts().length === 0) {
+        <!-- A real loading state, not a spinner over the old data - and only
+             when there is no old data to keep. The fake backend's 120ms is
+             enough that this renders on every cold load, which is the only
+             reason I trust it exists. -->
+        <!-- Day 57: no `role="status"` here any more. It is inside an `@if`,
+             so it never announced anything - see directory-search.html for the
+             full argument - and the page's results are announced through the
+             shell's region by an effect in contacts-page.ts. -->
+        <p class="status text-sm" id="list-loading">
+            Loading contacts&hellip;
+        </p>
+    } @else if (contacts.status() === 'failed') {
+        <!-- The failure, in the user's words rather than the protocol's, with
+             the one thing they can do about it. `api-error.ts` chose the
+             wording; this template chose the button. -->
+        <div class="empty-state" id="list-error">
+            <h3>The contacts could not be loaded</h3>
+            <p class="text-muted">{{ contacts.error()?.message }}</p>
+            <button type="button" class="button button--small" id="retry" (click)="contacts.refresh()">
+                Try again
+            </button>
+        </div>
+    } @else {
+        <ul class="book-grid">
+            @for (contact of contacts.contacts(); track contact.id) {
+                <li>
+                    <app-contact-card
+                        [contact]="contact"
+                        [detailLink]="['/contacts', contact.id]"
+                        (edit)="onEdit($event)"
+                        (remove)="onRemove(contact)"
+                        (toggleFavourite)="onToggleFavourite(contact)"
+                    />
+                </li>
+            } @empty {
+                <li>
+                    <app-empty-state
+                        [message]="
+                            contacts.filtering()
+                                ? 'No contact matches that search.'
+                                : 'The server has no contacts yet.'
+                        "
+                    >
+                        @if (contacts.filtering()) {
+                            <button
+                                type="button"
+                                class="button button--small"
+                                id="clear-filters"
+                                (click)="onClearFilters()"
+                            >
+                                Clear the filters
+                            </button>
+                        } @else {
+                            <a class="button button--small" routerLink="/contacts/new">
+                                Add a contact
+                            </a>
+                        }
+                    </app-empty-state>
+                </li>
+            }
+        </ul>
+
+        <!-- Below the list, and only rendered when there is more than one
+             page - which the component decides, not this template. -->
+        <app-pagination
+            [page]="contacts.pageNumber()"
+            [pages]="contacts.pages()"
+            [matched]="contacts.matched()"
+        />
+    }
+</app-panel>
