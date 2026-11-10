@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Day 59 | Production Build and Deployment</title>
+
+  <!-- `<base href="/">` is Angular's, and it is what the Router resolves
+       every route against. Day 39's base-path problem has the same shape here:
+       deploying to a subdirectory means changing this, and `ng build
+       --base-href` writes it for you.
+
+       DAY 59: it writes it HERE, in the build output, and this file keeps `/`
+       because that is what `ng serve` and every spec want. `npm run
+       build:pages` produces an output whose line 11 reads
+       `<base href="/Frontend-Training/">` instead - the one difference
+       between a bundle that works on GitHub Pages and one that does not.
+
+       It is also, as of today, the single source of truth for where the API
+       lives: `API_BASE` in `src/app/tokens.ts` reads this element through
+       `PlatformLocation` rather than hard-coding `/api`. One value, one
+       build flag, and the router and the data layer cannot disagree about
+       which directory the app is in. -->
+  <base href="/">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Day 59: the production build - a base href the API path is derived from, a 404.html so a refreshed deep link still works, content-hashed filenames and bundle budgets that can fail a build.">
+</head>
+<body>
+  <!-- The app's root component, matched by its selector. React rendered into
+       an empty <div id="root">; Angular looks for a tag that matches a
+       component's selector, which is why this element is named rather than
+       generic. -->
+  <app-root></app-root>
+</body>
+</html>

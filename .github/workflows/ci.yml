@@ -1,0 +1,166 @@
+# Day 59 - the same three commands, run by somebody who is not me.
+#
+# Every check in this project so far has been one I chose to run. That is the
+# weakest possible guarantee: a check that only runs when I remember it is a
+# check that passes on the day I am looking and says nothing about the other
+# fifty-eight. This file hands the three commands to a machine that runs them
+# on a clean checkout, on every push, whether I remember or not.
+#
+# HONESTY NOTE, because it matters more than the file: this workflow has never
+# run. GitHub Actions needs a push to GitHub to execute it, and nothing in this
+# repository has been pushed as part of today's work. What I have verified
+# locally is: that the YAML parses, that the paths in it exist, and that
+# `npm run typecheck`, `npm test`, `npm run build:pages` and the four tests in
+# the "Check the output" step below all succeed on this machine, in this order.
+#
+# `npm ci` is NOT among those. It deletes node_modules before installing, and
+# node_modules in this project is a junction to one shared Angular install
+# that every day's folder points at - so running it here would take the other
+# fifty-eight days down with it. The lockfile it needs was generated with
+# `npm install --package-lock-only`, which is the whole of my evidence that
+# `npm ci` will work. Also unverified, and only a runner can say: whether the
+# lockfile resolves on Linux, whether the headless browser the test runner
+# wants exists on `ubuntu-latest`, and whether the Pages deploy works at all.
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  # So the deploy can be triggered by hand the first time, rather than by
+  # pushing a commit whose only purpose is to trigger it.
+  workflow_dispatch:
+
+# The app under test. Day 60 bumps this one line; the rest of the file is the
+# same for every day, which is the reason it is a variable and not a path
+# repeated in five places.
+#
+# The directory name has spaces in it. `working-directory` handles that
+# correctly without quoting, because YAML gives the value to the shell as a
+# single string rather than a command line - but every place the path is
+# INTERPOLATED into a shell command needs quotes, which is why ${{ env.APP_DIR }}
+# appears inside double quotes below.
+env:
+  APP_DIR: Day 59/Production Build and Deployment
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          # Caches ~/.npm keyed on the lockfile, which is the reason Day 59
+          # generated one. Without a lockfile this line fails the job outright
+          # rather than quietly skipping the cache.
+          cache: npm
+          cache-dependency-path: ${{ env.APP_DIR }}/package-lock.json
+
+      # `npm ci` rather than `npm install`: it installs exactly the lockfile,
+      # fails if package.json and the lockfile disagree, and deletes
+      # node_modules first. All three are what a build server should do and
+      # none of them are what a developer wants locally.
+      - name: Install
+        working-directory: ${{ env.APP_DIR }}
+        run: npm ci
+
+      - name: Typecheck
+        working-directory: ${{ env.APP_DIR }}
+        run: npm run typecheck
+
+      # The 319 tests. Deliberately NOT `--watch`, and deliberately before the
+      # build: a failing test should stop the job before it spends time
+      # producing a bundle nobody will deploy.
+      - name: Test
+        working-directory: ${{ env.APP_DIR }}
+        run: npm test
+
+      # The real production build, with the base href the deployment needs and
+      # the budgets from angular.json. A bundle over the error budget fails
+      # here, which is the entire reason Day 58's budgets are numbers rather
+      # than good intentions.
+      - name: Build
+        working-directory: ${{ env.APP_DIR }}
+        run: npm run build:pages
+
+      # Proof, in the log, that the two files a static host needs are in the
+      # output - because "the build succeeded" and "the deploy will work" are
+      # different claims and Day 59 is the day I learned the difference.
+      #
+      # The base href is NOT checked here. It was, with
+      # `grep -q '<base href="/Frontend-Training/">'`, and that grep was
+      # worthless: `src/index.html` has a comment about the base href that
+      # contains the same string, so it matched text no browser acts on. The
+      # check moved into `tools/spa-fallback.mjs`, which strips comments
+      # first and exits non-zero on a mismatch - so the Build step above
+      # already fails on a base href this job would have passed.
+      - name: Check the output
+        working-directory: ${{ env.APP_DIR }}
+        run: |
+          test -f dist/contacts/browser/index.html
+          test -f dist/contacts/browser/404.html
+          test -f dist/contacts/browser/.nojekyll
+          test -f dist/contacts/browser/api/contacts.json
+          echo "index.html, 404.html, .nojekyll and the seed data are all present"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: contacts-build
+          path: ${{ env.APP_DIR }}/dist/contacts/browser
+          # The default is 90 days, which is a lot of storage for a bundle
+          # whose only job is to be downloadable for a week if something looks
+          # wrong in the deployed version.
+          retention-days: 7
+
+  # Separate job, so a deploy cannot happen unless the checks passed, and so
+  # the permissions the deploy needs are not granted to the job that runs the
+  # tests. `needs: check` is the first half of that; `permissions` below is the
+  # second.
+  deploy:
+    needs: check
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+
+    # Read-only by default in this workflow; these two are what
+    # `deploy-pages` needs and nothing more. `id-token: write` is for the
+    # OIDC token Pages uses to prove the artifact came from this repository.
+    permissions:
+      pages: write
+      id-token: write
+
+    environment:
+      name: github-pages
+      url: ${{ steps.pages.outputs.page_url }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: ${{ env.APP_DIR }}/package-lock.json
+
+      - name: Install
+        working-directory: ${{ env.APP_DIR }}
+        run: npm ci
+
+      # Built again rather than downloaded from the check job. Slower, and
+      # correct: an artifact is a file somebody could have replaced between
+      # the two jobs, and the build is two seconds.
+      - name: Build
+        working-directory: ${{ env.APP_DIR }}
+        run: npm run build:pages
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: ${{ env.APP_DIR }}/dist/contacts/browser
+
+      - id: pages
+        uses: actions/deploy-pages@v4
