@@ -1,0 +1,42 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    /* Day 54: `[]`, and every spec imports `describe`, `it` and `expect` from
+       'vitest' by name.
+
+       This line was `["vitest/globals", "node"]` from Day 41 until the first
+       time anything actually ran, which failed with
+
+           TS2688: Cannot find type definition file for 'node'.
+
+       - because @types/node was never installed. A types entry for a package
+       that is not there is an error rather than a no-op, and nothing noticed
+       for thirteen days because `tsconfig.spec.json` had no files to check.
+
+       Dropping both is better than installing one: explicit imports mean a
+       reader can see where `expect` comes from, and the specs type-check the
+       same way the app does. */
+    "types": [],
+    "outDir": "./out-tsc/spec",
+    "composite": true
+  },
+  // Day 54: widened from the two spec-only patterns the CLI generates, which
+  // do not stand up to being used.
+  //
+  // `ng test` builds the specs together with the app, so it was happy. Running
+  // the compiler over this project directly was not:
+  //
+  //     error TS6307: File 'src/app/title-strategy.ts' is not listed within
+  //     the file list of project 'tsconfig.spec.json'. Projects must list all
+  //     files or use an 'include' pattern.
+  //
+  // - because `composite: true` requires every file in the program to be
+  // listed, and a spec that imports the thing it tests pulls in the whole app.
+  // The app's own tsconfig excludes the specs rather than listing only the
+  // sources, and this is the mirror image of that.
+  //
+  // Line comments rather than a block, because a glob containing a star and a
+  // slash closes a block comment early - which is how the first attempt at
+  // this comment broke the file, with ten TS1005s and no mention of comments.
+  "include": ["src/**/*.ts"]
+}

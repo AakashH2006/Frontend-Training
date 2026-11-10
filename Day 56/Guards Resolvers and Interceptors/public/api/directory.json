@@ -1,0 +1,148 @@
+{
+  "people": [
+    {
+      "id": "d1",
+      "name": "Katsuko Saruhashi",
+      "title": "Geochemist",
+      "email": "katsuko@example.org"
+    },
+    {
+      "id": "d2",
+      "name": "Chien-Shiung Wu",
+      "title": "Experimental physicist",
+      "email": "chien@example.org"
+    },
+    {
+      "id": "d3",
+      "name": "Tu Youyou",
+      "title": "Pharmaceutical chemist",
+      "email": "tu@example.org"
+    },
+    {
+      "id": "d4",
+      "name": "Rosalind Franklin",
+      "title": "X-ray crystallographer",
+      "email": "rosalind@example.org"
+    },
+    {
+      "id": "d5",
+      "name": "Dorothy Hodgkin",
+      "title": "Chemist",
+      "email": "dorothy@example.org"
+    },
+    {
+      "id": "d6",
+      "name": "Barbara McClintock",
+      "title": "Cytogeneticist",
+      "email": "barbara@example.org"
+    },
+    {
+      "id": "d7",
+      "name": "Rita Levi-Montalcini",
+      "title": "Neurologist",
+      "email": "rita@example.org"
+    },
+    {
+      "id": "d8",
+      "name": "Gertrude Elion",
+      "title": "Biochemist",
+      "email": "gertrude@example.org"
+    },
+    {
+      "id": "d9",
+      "name": "Flossie Wong-Staal",
+      "title": "Virologist",
+      "email": "flossie@example.org"
+    },
+    {
+      "id": "d10",
+      "name": "Mary Jackson",
+      "title": "Aeronautical engineer",
+      "email": "maryj@example.org"
+    },
+    {
+      "id": "d11",
+      "name": "Dorothy Vaughan",
+      "title": "Mathematician",
+      "email": "dorothyv@example.org"
+    },
+    {
+      "id": "d12",
+      "name": "Annie Easley",
+      "title": "Computer scientist",
+      "email": "annie@example.org"
+    },
+    {
+      "id": "d13",
+      "name": "Evelyn Boyd Granville",
+      "title": "Mathematician",
+      "email": "evelyn@example.org"
+    },
+    {
+      "id": "d14",
+      "name": "Shirley Jackson",
+      "title": "Theoretical physicist",
+      "email": "shirley@example.org"
+    },
+    {
+      "id": "d15",
+      "name": "Patricia Bath",
+      "title": "Ophthalmologist",
+      "email": "patricia@example.org"
+    },
+    {
+      "id": "d16",
+      "name": "Marie Maynard Daly",
+      "title": "Biochemist",
+      "email": "marie@example.org"
+    },
+    {
+      "id": "d17",
+      "name": "Alice Ball",
+      "title": "Chemist",
+      "email": "alice@example.org"
+    },
+    {
+      "id": "d18",
+      "name": "Mamie Phipps Clark",
+      "title": "Psychologist",
+      "email": "mamie@example.org"
+    },
+    {
+      "id": "d19",
+      "name": "Ada Yonath",
+      "title": "Crystallographer",
+      "email": "aday@example.org"
+    },
+    {
+      "id": "d20",
+      "name": "Jennifer Doudna",
+      "title": "Biochemist",
+      "email": "jennifer@example.org"
+    },
+    {
+      "id": "d21",
+      "name": "Emmanuelle Charpentier",
+      "title": "Microbiologist",
+      "email": "emmanuelle@example.org"
+    },
+    {
+      "id": "d22",
+      "name": "Jocelyn Bell Burnell",
+      "title": "Astrophysicist",
+      "email": "jocelyn@example.org"
+    },
+    {
+      "id": "d23",
+      "name": "Vera Rubin",
+      "title": "Astronomer",
+      "email": "vera@example.org"
+    },
+    {
+      "id": "d24",
+      "name": "Esther Lederberg",
+      "title": "Microbiologist",
+      "email": "esther@example.org"
+    }
+  ]
+}
